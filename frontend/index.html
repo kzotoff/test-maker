@@ -34,7 +34,7 @@
                 <div class="admin-block-header">
                     Pages
                     &nbsp;
-                    <span data-js-target="page-info"></span>
+                    <span data-js-target="pages-summary"></span>
                 </div>
                 <div class="admin-block-content">
                     <button class="admin-control-icon-button fa-solid fa-plus" data-js-action="page-add"></button>
@@ -47,6 +47,8 @@
             <div class="admin-block">
                 <div class="admin-block-header">
                     Elements
+                    &nbsp;
+                    <span data-js-target="elements-summary"></span>
                 </div>
                 <div class="admin-block-content">
                     <button class="admin-control-icon-button fa-solid fa-plus" data-js-action="element-add"></button>
@@ -74,16 +76,60 @@
                 </div>
                 <div class="admin-block-content">
                     <div class="admin-block-control-group">
+                        <label>Left (%)</label>
+                        <input type="number" data-js-css-value="left">
+                        <select data-js-css-unit="left">
+                            <option value="%">%</option>
+                            <option value="px">px</option>
+                            <option value="em">em</option>
+                            <option value="vh">vh</option>
+                            <option value="vw">vw</option>
+                        </select>
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label>Top (%)</label>
+                        <input type="number" data-js-css-value="top">
+                        <select data-js-css-unit="top">
+                            <option value="%">%</option>
+                            <option value="px">px</option>
+                            <option value="em">em</option>
+                            <option value="vh">vh</option>
+                            <option value="vw">vw</option>
+                        </select>
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label>Width (%)</label>
+                        <input type="number" data-js-css-value="width">
+                        <select data-js-css-unit="width">
+                            <option value="%">%</option>
+                            <option value="px">px</option>
+                            <option value="em">em</option>
+                            <option value="vh">vh</option>
+                            <option value="vw">vw</option>
+                        </select>
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label>Height (%)</label>
+                        <input type="number" data-js-css-value="height">
+                        <select data-js-css-unit="height">
+                            <option value="%">%</option>
+                            <option value="px">px</option>
+                            <option value="em">em</option>
+                            <option value="vh">vh</option>
+                            <option value="vw">vw</option>
+                        </select>
+                    </div>
+                    <div class="admin-block-control-group">
                         <label>Color</label>
-                        <input type="color" data-js-css="color">
+                        <input type="color" data-js-css-value="color">
                     </div>
                     <div class="admin-block-control-group">
                         <label>Background color</label>
-                        <input type="color" data-js-css="background-color">
+                        <input type="color" data-js-css-value="background-color">
                     </div>
                     <div class="admin-block-control-group">
                         <label>Border color</label>
-                        <input type="color" data-js-css="border-color">
+                        <input type="color" data-js-css-value="border-color">
                     </div>
                 </div>
             </div>

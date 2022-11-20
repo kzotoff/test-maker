@@ -62,6 +62,7 @@ html {
     display: flex;
     flex-direction: row;
     align-items: center;
+    height: 24px;
 }
 .admin-block-control-group:not(:last-child) {
     margin-bottom: 8px;
@@ -70,6 +71,17 @@ html {
 
 .admin-block-control-group > label {
     flex: 0 0 60%;
+}
+.admin-block-control-group > input,
+.admin-block-control-group > select {
+    align-self: stretch;
+}
+.admin-block-control-group > *:not(:last-child) {
+    margin-right: 4px;
+}
+.admin-block-control-group > input[type="text"],
+.admin-block-control-group > input[type="number"] {
+    width: 100%;
 }
 .admin-block-control-group > textarea {
     width: 100%;
@@ -81,6 +93,7 @@ html {
 .admin-block-control-group-vertical {
     flex-direction: column;
     align-items: flex-start;
+    height: auto;
 }
 .admin-block-control-group-vertical > label {
     margin-bottom: 4px;
