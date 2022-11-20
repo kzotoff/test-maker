@@ -1,0 +1,88 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+}
+
+html {
+    font-family: verdana, arial, droid;
+}
+
+:root {
+    --control-background-color: #eee;
+    --control-background-color-hover: #ccc
+}
+
+/* admin ******************************************************/
+
+.admin {
+    position: fixed;
+    right: 10px;
+    top: 10px;
+    width: 300px;
+}
+
+.admin-block {
+    border: 1px gray solid;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.admin-block-header {
+    font-weight: bold;
+    padding: 4px 8px;
+    text-align: center;
+    border-bottom: 1px gray solid;
+}
+.admin-block-content {
+    padding: 8px;
+}
+
+.admin-control-icon-button {
+    color: #666;
+    font-size: 24px;
+    padding: 4px;
+    border-radius: 4px;
+    border: 1px gray solid;
+    background-color: var(--control-background-color);
+    transition: background-color 0.3s;
+    cursor: pointer;
+    min-width: 34px;
+}
+.admin-control-icon-button:hover {
+    background-color: var(--control-background-color-hover);
+}
+
+.admin-block-control-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.admin-block-control-group:not(:last-child) {
+    margin-bottom: 8px;
+}
+
+
+.admin-block-control-group > label {
+    flex: 0 0 60%;
+}
+.admin-block-control-group > textarea {
+    width: 100%;
+    height: 4em;
+    padding: 4px;
+    resize: vertical;
+}
+
+.admin-block-control-group-vertical {
+    flex-direction: column;
+    align-items: flex-start;
+}
+.admin-block-control-group-vertical > label {
+    margin-bottom: 4px;
+}
+
