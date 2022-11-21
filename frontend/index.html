@@ -6,10 +6,14 @@
 
         <link rel="stylesheet" href="./lib/fontawesome/css/all.css" />
         <script src="./lib/jquery/jquery.js"></script>
+        <script src="./lib/jquery-ui/jquery-ui.min.js"></script>
+        <script src="./lib/lodash/lodash-full.js"></script>
         <script src="./lib/mobx/mobx.umd.production.min.js"></script>
 
 
+        <link rel="stylesheet" href="./lib/jquery-ui/jquery-ui.min.css" />
         <link rel="stylesheet" href="./src/css.css" />
+        <script src="./src/PresentationData.js"></script>
         <script src="./src/js.js"></script>
     </head>
     <body>
@@ -24,9 +28,9 @@
                     Presentation
                 </div>
                 <div class="admin-block-content">
-                    <button class="admin-control-icon-button fa-solid fa-poo" data-js-action="presentation-test"></button>
+                    <button class="admin-control-icon-button fa-solid fa-file" data-js-action="presentation-reset"></button>
                     <button class="admin-control-icon-button fa-solid fa-file-arrow-down" data-js-action="presentation-export"></button>
-                    <button class="admin-control-icon-button fa-solid fa-trash" data-js-action="presentation-reset"></button>
+                    <button class="admin-control-icon-button fa-solid fa-poo" data-js-action="presentation-test"></button>
                 </div>
             </div>
 
@@ -66,6 +70,10 @@
                     <div class="admin-block-control-group admin-block-control-group-vertical">
                         <label>Text</label>
                         <textarea data-js-content="element-text"></textarea>
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label for="data-js-content-draggable">Draggable</label>
+                        <input id="data-js-content-draggable" type="checkbox" data-js-behavior="draggable">
                     </div>
                 </div>
             </div>

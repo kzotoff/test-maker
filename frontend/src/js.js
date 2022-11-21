@@ -1,106 +1,6 @@
 "use strict";
 
-const PresentationData = function(options) {
-
-    this.options = options || {};
-
-    this.data = mobx.observable({});
-
-    this.makeDataFrom = (newData) => {
-        // delete only elements that are absent in new data, it is intended restriction
-        for (let key in this.data) {
-            if (!(key in newData)) {
-                delete(this.data[key]);
-            }
-        }
-        for (let key in newData) {
-            this.data[key] = newData[key];
-        }
-    };
-
-    this.newElement = () => {
-        return {
-            "content": {
-                "text": "hello, world!",
-            },
-            "style": {
-                "left": "20%",
-                "top": "20%",
-                "width": "200px",
-                "height": "50px",
-                "background-color": "#9bf",
-            },
-        };
-
-    };
-
-    this.emptyPage = () => {
-        return {
-            metadata: {},
-            elements: [
-                this.newElement(),
-            ],
-        };
-    };
-
-    this.emptyData = () => {
-        return {
-            metadata: {},
-            pages: [
-                this.emptyPage(),
-            ],
-        };
-    };
-
-    this.reset = () => {
-        console.log('reset');
-        this.makeDataFrom(this.emptyData());
-    };
-
-    this.parseContent = (rawContent) => {
-        if (!rawContent) {
-            return this.emptyData();
-        }
-
-        try {
-            const result = JSON.parse(rawContent);
-            if (!result) {
-                return this.emptyData();
-            }
-            return result;
-        } catch {
-            return this.emptyData();
-        }
-    };
-
-    this.loadFromStorage = () => {
-        const rawData = localStorage.getItem("data");
-        this.makeDataFrom(this.parseContent(rawData));
-    };
-
-    this.saveToStorage = () => {
-        console.log('saving data to localstorage');
-        localStorage.setItem("data", JSON.stringify(this.data));
-    };
-
-    this.pageAdd = () => {
-        this.data.pages.push(this.emptyPage());
-    };
-
-    this.pageDelete = (index) => {
-        this.data.pages.splice(index, 1);
-    };
-
-    this.elementAdd = (pageIndex) => {
-        this.data.pages[pageIndex].elements.push(this.newElement());
-    };
-
-    this.elementDelete = (pageIndex, elementIndex) => {
-        this.data.pages[pageIndex].elements.splice(elementIndex);
-    };
-};
-
-(($) => {
+(($, _) => {
 
     console.log('yeah we are starting');
 
@@ -152,7 +52,7 @@ const PresentationData = function(options) {
         });
 
         $('body').on('click', '[data-js-action="presentation-reset"]', () => {
-            if (!confirm('start over?')) { return; }
+            if (!confirm('delete everything and start over?')) { return; }
             if (!confirm('sure?')) { return; }
             if (!confirm('absolutely?')) { return; }
             data.reset();
@@ -178,9 +78,14 @@ const PresentationData = function(options) {
 
         // elements
 
-        $('body').on('click', '[data-js-element-index]', (event) => {
+        $('body').on('click', '.content [data-js-element-index]', (event) => {
             state.currentElement = parseInt($(event.target).attr('data-js-element-index'));
         });
+
+        $('body').on('dragEnd', '.element', (event) => {
+            console.log(event);
+        });
+
         $('body').on('click', '[data-js-action="element-add"]', () => {
             data.elementAdd(state.currentPage);
             elementNext();
@@ -210,84 +115,125 @@ const PresentationData = function(options) {
             const prop = $(event.target).attr('data-js-css-unit');
             elementUpdateStyle(prop);
         });
+        $('body').on('change', '[data-js-behavior="draggable"]', (event) => {
+            data.elementSetDraggable(state.currentPage, state.currentElement, event.target.checked);
+        });
 
     }
 
     const renderPagesSummary = () => {
         const div = $('[data-js-target="pages-summary"]');
-        div.html((state.currentPage + 1) + '/' + data.data.pages.length)
+        div.html(
+            (data.data.pages.length ? (state.currentPage + 1) : "-") +
+            "/" +
+            data.data.pages.length
+        );
     };
 
     const renderElementsSummary = () => {
         const div = $('[data-js-target="elements-summary"]');
-        div.html((state.currentElement + 1) + '/' + data.data.pages[state.currentPage].elements.length)
+        if (data.data.pages.length === 0) {
+            div.html("- / -");
+            return;
+        }
+        div.html(
+            (data.data.pages[state.currentPage].elements.length ? (state.currentElement + 1) : "-") +
+            "/" +
+            data.data.pages[state.currentPage].elements.length
+        );
+    };
+
+    const clearElementPropControls = () => {
+        $('[data-js-css-value]').each((index, elem) => {
+            const $elem = $(elem);
+            if ($elem.attr("type") == "text") {
+                $elem.val('');
+                reeturn;
+            }
+            if ($elem.attr("type") == "color") {
+                $elem.val('#000000');
+                return;
+            }
+        });
+
+        $('[data-js-content="element-text"]').text("");
+        $('[data-js-behavior="draggable"]').prop("checked", false);
     };
 
     const fillCssFields = () => {
-        $('input[data-js-css]').val(null);
+        clearElementPropControls();
+
         const element = data.data.pages[state.currentPage].elements[state.currentElement];
         if (!element.style) {
             console.warn('element has no style section, it is strange');
             return;
         }
+
         for (let prop in element.style) {
             const value = element.style[prop];
 
             // check if it is color
             if (value.match(/#[0-9a-f]{3}([0-9a-f]{3})?/)) {
-                console.log('color', value);
+                console.log(prop, 'color', value);
                 $('[data-js-css-value="' + prop + '"]').val(value);
                 continue;
             }
             // first type: digital + optional unit
             const parts = /(\d+)([^\d]+)?/.exec(value);
             if (parts) {
-                console.log('dimension', value);
+                console.log(prop, 'dimension', value);
                 $('[data-js-css-value="' + prop + '"]').val(parts[1]);
                 $('[data-js-css-unit="' + prop + '"]').val(parts[2]);
                 continue;
             }
-
-            console.warn('unknown', prop, value);
+            console.warn('CSS property value is not recognized: ', prop, value);
 
         }
         $('[data-js-content="element-text"]').text(element.content.text);
-
+        $('[data-js-behavior="draggable"]').prop("checked", _.get(element, "behavior.draggable", false));
     }
+
+    const renderElement = (elem, index) => {
+        const $div = $("<div>")
+            .addClass("element")
+            .addClass("element-default")
+            .attr('data-js-element-index', index)
+            ;
+
+        if (elem.content && elem.content.text) {
+            $div.text(elem.content.text);
+        }
+
+        if (elem.style) {
+            for (let prop in elem.style) {
+                $div.css(prop, elem.style[prop]);
+            }
+        }
+
+        if (index === state.currentElement) {
+            $div.css("outline", "2px red dashed");
+        }
+
+        if (_.get(elem, "behavior.draggable")) {
+            $div.draggable({
+                stop: () => {
+                    console.log('save position!');
+                }
+            });
+
+        };
+        return $div;
+
+    };
 
     const renderElements = (targetSelector, pageContent) => {
         const $content = $(targetSelector);
         $content.empty();
-
         pageContent.elements.forEach((elem, index) => {
-
-            const div = $("<div>")
-                .css({
-                    "position": "absolute",
-                    "display": "flex",
-                    "align-items": "center",
-                    "justify-content": "center",
-                })
-                .attr('data-js-element-index', index)
-                ;
-
-            if (elem.content && elem.content.text) {
-                div.text(elem.content.text);
-            }
-
-            if (elem.style) {
-                for (let prop in elem.style) {
-                    div.css(prop, elem.style[prop]);
-                }
-            }
-
-            if (index === state.currentElement) {
-                div.css("outline", "2px red dashed");
-            }
-
-            $content.append(div);
+            $content.append(
+                renderElement(elem,index)
+            );
         });
-
     };
 
     const render = () => {
@@ -323,4 +269,4 @@ const PresentationData = function(options) {
         );
     })
 
-})(jQuery);
+})(jQuery, _);
