@@ -13,6 +13,15 @@ html {
     font-family: verdana, arial, droid;
 }
 
+.content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    border: 2px blue dashed;
+}
+
 :root {
     --control-color: #666;
     --control-border-color: #bbb;
@@ -24,7 +33,7 @@ html {
 
 /* default element styling */
 .element-default {
-    position: absolute;
+    position: absolute !important;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -79,7 +88,7 @@ html {
     display: flex;
     flex-direction: row;
     align-items: center;
-    height: 24px;
+    height: 26px;
 }
 .admin-block-control-group:not(:last-child) {
     margin-bottom: 8px;
@@ -97,6 +106,24 @@ html {
 
 .admin-block-control-group > *:not(:last-child) {
     margin-right: 4px;
+}
+
+
+.admin input[type="text"],
+.admin input[type="number"],
+.admin textarea,
+.admin select {
+    font-size: 100%;
+    padding: 4px 2px;
+}
+
+.admin input:focus,
+.admin textarea:focus,
+.admin select:focus {
+    box-shadow: 0 0 2px 2px rgb(0, 153, 255);
+    background-color: white;
+    outline: none;
+    border: 1px var(--control-color) solid;
 }
 
 .admin-block-control-group > input[type="checkbox"] {

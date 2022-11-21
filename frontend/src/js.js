@@ -78,7 +78,7 @@
 
         // elements
 
-        $('body').on('click', '.content [data-js-element-index]', (event) => {
+        $('body').on('mousedown', '.content [data-js-element-index]', (event) => {
             state.currentElement = parseInt($(event.target).attr('data-js-element-index'));
         });
 
@@ -174,14 +174,14 @@
 
             // check if it is color
             if (value.match(/#[0-9a-f]{3}([0-9a-f]{3})?/)) {
-                console.log(prop, 'color', value);
+                // console.log(prop, 'color', value);
                 $('[data-js-css-value="' + prop + '"]').val(value);
                 continue;
             }
             // first type: digital + optional unit
             const parts = /(\d+)([^\d]+)?/.exec(value);
             if (parts) {
-                console.log(prop, 'dimension', value);
+                // console.log(prop, 'dimension', value);
                 $('[data-js-css-value="' + prop + '"]').val(parts[1]);
                 $('[data-js-css-unit="' + prop + '"]').val(parts[2]);
                 continue;
@@ -191,7 +191,18 @@
         }
         $('[data-js-content="element-text"]').text(element.content.text);
         $('[data-js-behavior="draggable"]').prop("checked", _.get(element, "behavior.draggable", false));
-    }
+    };
+
+    const calcPosition = (positionPx, fullSize, unit) => {
+        switch (unit) {
+            case "%":
+                return parseInt(positionPx / fullSize * 100);
+                break;
+            case "px":
+                return positionPx;
+                break;
+            }
+    };
 
     const renderElement = (elem, index) => {
         const $div = $("<div>")
@@ -217,7 +228,14 @@
         if (_.get(elem, "behavior.draggable")) {
             $div.draggable({
                 stop: () => {
-                    console.log('save position!');
+                    const $offset = $div.offset();
+                    console.log($offset);
+
+                    const newLeft = calcPosition($offset.left, $('.content').outerWidth(), $('[data-js-css-unit="left"]').val());
+                    const newTop = calcPosition($offset.top, $('.content').outerHeight(), $('[data-js-css-unit="top"]').val());
+
+                    $('[data-js-css-value="left"]').val(newLeft).change();
+                    $('[data-js-css-value="top"]').val(newTop).change();
                 }
             });
 
