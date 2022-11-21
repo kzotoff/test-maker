@@ -40,6 +40,10 @@
         const element = data.data.pages[state.currentPage].elements[state.currentElement];
         element.content.text = text;
     };
+    const elementUpdateSound = (sound) => {
+        const element = data.data.pages[state.currentPage].elements[state.currentElement];
+        element.content.sound = sound;
+    };
 
     const attachHandlers = () => {
 
@@ -104,8 +108,11 @@
         // design and content
 
         $('body').on('change', '[data-js-content="element-text"]', (event) => {
-            const text = $(event.target).val();
-            elementUpdateText(text);
+            elementUpdateText($(event.target).val());
+        });
+
+        $('body').on('change', '[data-js-content="element-sound"]', (event) => {
+            elementUpdateSound($(event.target).val())
         });
         $('body').on('change', '[data-js-css-value]', (event) => {
             const prop = $(event.target).attr('data-js-css-value');
@@ -157,6 +164,7 @@
         });
 
         $('[data-js-content="element-text"]').text("");
+        $('[data-js-content="element-sound"]').val(null);
         $('[data-js-behavior="draggable"]').prop("checked", false);
     };
 
@@ -190,6 +198,7 @@
 
         }
         $('[data-js-content="element-text"]').text(element.content.text);
+        $('[data-js-content="element-sound"]').val(element.content.sound);
         $('[data-js-behavior="draggable"]').prop("checked", _.get(element, "behavior.draggable", false));
     };
 
@@ -254,6 +263,37 @@
         });
     };
 
+    const fillSoundSelector = () => {
+        $.get(
+            "/api/list.php?type=mp3",
+            (result) => {
+                const $select = $('[data-js-content="element-sound"]');
+                try {
+                    const list = JSON.parse(result);
+                    $select.empty();
+
+                    $select.append(
+                        $("<option>")
+                            .attr("value", "")
+                            .text('-')
+                    )
+
+                    list.forEach((filename) => {
+                        $select.append(
+                            $("<option>")
+                                .attr("value", filename)
+                                .text(filename)
+                        )
+                    });
+                } catch (e) {
+                    console.warn('something went wrong while loading mp3 list', e)
+                }
+
+
+            }
+        );
+
+    };
     const render = () => {
 
         console.log('render');
@@ -281,6 +321,7 @@
         );
 
         attachHandlers();
+        fillSoundSelector();
 
         mobx.autorun(
             () => render()
