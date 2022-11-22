@@ -130,7 +130,7 @@
         $('body').on('click', '[data-js-action="presentation-export"]', dataExport);
         $('body').on('click', '[data-js-action="presentation-import"]', dataImport);
         $('body').on('click', '[data-js-action="presentation-reset"]', dataReset);
-        $('body').on('change', '[data-js-action="media-add-sound"]', mediaSoundUpload);
+        $('body').on('change', '[data-js-action="media-sound-upload"]', mediaSoundUpload);
 
         // pages
         $('body').on('click', '[data-js-action="page-add"]', pageAdd);
@@ -151,6 +151,24 @@
         $('body').on('change', '[data-js-action="element-css-value"]', elementSetStyle);
         $('body').on('change', '[data-js-action="element-css-unit"]', elementSetStyle);
         $('body').on('change', '[data-js-behavior="draggable"]', elementSetDraggable);
+
+        // TODO refactor
+        $('body').on('click', '.element', (event) => {
+            const elementIndex = parseInt($(event.target).attr('data-js-element-index'));
+            const soundSrc = data.data.pages[state.currentPage].elements[elementIndex].content.sound;
+            console.log('sound:', soundSrc);
+            if (!soundSrc) {
+                return;
+            }
+
+            const url = '/media/sound/' + soundSrc;
+            const audio = new Audio(url);
+            audio.play();
+            //const player = $('[data-js-audio="content-player"]');
+            //player.append('<source>', '/media/sound/' + soundSrc);
+            //player[0].play();
+
+        });
 
     }
 

@@ -1,8 +1,8 @@
 <?php
 
-echo "----";
+echo "----" . PHP_EOL;
 print_r($_FILES);
-echo "----";
+echo "----" . PHP_EOL . PHP_EOL;
 
 if ($_POST['type'] === "sound") {
 
@@ -11,11 +11,13 @@ if ($_POST['type'] === "sound") {
 
     foreach ($_FILES['file']['error'] as $index => $err) {
         $new_name = $target_folder . $_FILES['file']['name'][$index];
-        echo $new_name . PHP_EOL;
+        $tmp_name = $_FILES['file']['tmp_name'][$index];
+        echo $tmp_name . '-> ' . $new_name . PHP_EOL;
         if ($err == UPLOAD_ERR_OK) {
-            $tmp_name = $_FILES['file']['tmp_name'][$index];
             move_uploaded_file($tmp_name, $new_name);
-            echo "ok";
+            echo 'ok' . PHP_EOL;
+        } else {
+            echo 'error code ' . $err . PHP_EOL;
         }
     }
 }
