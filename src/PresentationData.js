@@ -103,7 +103,7 @@ const PresentationData = function(options) {
     };
 
     this.elementDelete = (pageIndex, elementIndex) => {
-        this.data.pages[pageIndex].elements.splice(elementIndex);
+        this.data.pages[pageIndex].elements.splice(elementIndex, 1);
     };
 
     this.elementSetDraggable = (pageIndex, elementIndex, newValue) => {

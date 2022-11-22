@@ -43,7 +43,40 @@ html {
     white-space: pre-line;
     text-align: center;
 }
+.element-default .element-sound-icon {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 16px;
+    height: 16px;
+    color: rgba(0, 0, 0, 0.42);
+}
 
+/* mode *******************************************************/
+.mode-controls {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    padding: 4px;
+    opacity: 0.32;
+    transition: opacity 0.3s;
+}
+.mode-controls:hover {
+    opacity: 1;
+}
+.mode-controls .mode-control-button {
+    height: 32px;
+    width: 32px;
+}
+.mode-play .admin {
+    display: none;
+}
+.mode-play .mode-control-button[data-js-action="mode-set-play"] {
+    display: none;
+}
+.mode-edit .mode-control-button[data-js-action="mode-set-edit"] {
+    display: none;
+}
 /* admin ******************************************************/
 
 .admin {

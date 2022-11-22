@@ -21,6 +21,10 @@
 
         </div>
 
+        <div class="mode-controls">
+            <button class="mode-control-button fa-solid fa-pen-to-square" data-js-action="mode-set-edit"></button>
+            <button class="mode-control-button fa-solid fa-play" data-js-action="mode-set-play"></button>
+        </div>
         <div class="admin">
 
             <div class="admin-block">
@@ -45,7 +49,7 @@
                         <label>Add sound</label>
                         <form>
                             <input type="hidden" name="type" value="sound" />
-                            <input type="file" name="file[]" data-js-action="input-add-sound" multiple="multiple" />
+                            <input type="file" name="file[]" data-js-action="media-sound-upload" multiple="multiple" />
                         </form>
                     </div>
                 </div>
@@ -110,47 +114,47 @@
                     </div>
                     <div class="admin-block-control-group">
                         <label>Left (%)</label>
-                        <input type="number" data-js-css-value="left">
-                        <select data-js-css-unit="left">
+                        <input type="number" data-js-css-value="left" data-js-action="element-css-value">
+                        <select data-js-css-unit="left" data-js-action="element-css-unit">
                             <option value="%">%</option>
                             <option value="px">px</option>
                         </select>
                     </div>
                     <div class="admin-block-control-group">
                         <label>Top (%)</label>
-                        <input type="number" data-js-css-value="top">
-                        <select data-js-css-unit="top">
+                        <input type="number" data-js-css-value="top" data-js-action="element-css-value">
+                        <select data-js-css-unit="top" data-js-action="element-css-unit">
                             <option value="%">%</option>
                             <option value="px">px</option>
                         </select>
                     </div>
                     <div class="admin-block-control-group">
                         <label>Width (%)</label>
-                        <input type="number" data-js-css-value="width">
-                        <select data-js-css-unit="width">
+                        <input type="number" data-js-css-value="width" data-js-action="element-css-value">
+                        <select data-js-css-unit="width" data-js-action="element-css-unit">
                             <option value="%">%</option>
                             <option value="px">px</option>
                         </select>
                     </div>
                     <div class="admin-block-control-group">
                         <label>Height (%)</label>
-                        <input type="number" data-js-css-value="height">
-                        <select data-js-css-unit="height">
+                        <input type="number" data-js-css-value="height" data-js-action="element-css-value">
+                        <select data-js-css-unit="height" data-js-action="element-css-unit">
                             <option value="%">%</option>
                             <option value="px">px</option>
                         </select>
                     </div>
                     <div class="admin-block-control-group">
                         <label>Color</label>
-                        <input type="color" data-js-css-value="color">
+                        <input type="color" data-js-css-value="color" data-js-action="element-css-value">
                     </div>
                     <div class="admin-block-control-group">
                         <label>Background color</label>
-                        <input type="color" data-js-css-value="background-color">
+                        <input type="color" data-js-css-value="background-color" data-js-action="element-css-value">
                     </div>
                     <div class="admin-block-control-group">
                         <label>Border color</label>
-                        <input type="color" data-js-css-value="border-color">
+                        <input type="color" data-js-css-value="border-color" data-js-action="element-css-value">
                     </div>
                 </div>
             </div>

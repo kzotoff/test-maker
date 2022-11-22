@@ -8,27 +8,108 @@
     data.loadFromStorage();
 
     const state = mobx.observable({
+        isEditMode: true,
         currentPage: 0,
         currentElement: 0,
     });
 
-    const pageNext = () => {
-        state.currentPage = Math.min(state.currentPage + 1, data.data.pages.length - 1);
-        state.currentElement = 0;
+    const modeEditOn = () => {
+        state.isEditMode = true;
+        $('html').removeClass('mode-play').addClass('mode-edit');
+    };
+
+    const modeEditOff = () => {
+        state.isEditMode = false;
+        $('html').removeClass('mode-edit').addClass('mode-play');
+    };
+
+    const dataReset = () => {
+        if (!confirm('delete everything and start over?')) { return; }
+        if (!confirm('sure?')) { return; }
+        if (!confirm('absolutely?')) { return; }
+        data.reset();
+    };
+
+    const dataExport = () => {
+
+    };
+
+    const dataImport = () => {
+
+    };
+
+    const mediaSoundUpload = (event) => {
+        const formElement = $(event.target).closest('form')[0];
+        const formData = new FormData(formElement);
+        $.ajax({
+            url: '/api/upload.php',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            enctype: 'multipart/form-data',
+            contentType: false,
+            success: (result) => {
+                fillSoundSelector();
+            }
+        });
     }
+
     const pagePrev = () => {
         state.currentPage = Math.max(state.currentPage - 1, 0);
         state.currentElement = 0;
-    }
+    };
+
+    const pageNext = () => {
+        state.currentPage = Math.min(state.currentPage + 1, data.data.pages.length - 1);
+        state.currentElement = 0;
+    };
+
+    const pageAdd = () => {
+        data.pageAdd();
+        pageNext();
+    };
+
+    const pageDelete = () => {
+        const newCurrentPage = Math.min(state.currentPage, data.data.pages.length - 2);
+        data.pageDelete(state.currentPage);
+        state.currentPage = newCurrentPage;
+    };
+
+    const elementSelect = (event) => {
+        state.currentElement = parseInt($(event.target).attr('data-js-element-index'));
+    };
 
     const elementNext = () => {
         state.currentElement = Math.min(state.currentElement + 1, data.data.pages[state.currentPage].elements.length - 1);
-    }
+    };
+
     const elementPrev = () => {
         state.currentElement = Math.max(state.currentElement - 1, 0);
-    }
+    };
 
-    const elementUpdateStyle = (prop) => {
+    const elementAdd = () => {
+        data.elementAdd(state.currentPage);
+        elementNext();
+    };
+
+    const elementDelete = () => {
+        const newCurrentElement = Math.min(state.currentElement, data.data.pages[state.currentPage].elements.length - 2);
+        data.elementDelete(state.currentPage, state.currentElement);
+        state.currentElement = newCurrentElement;
+    };
+
+    const elementSetText = (event) => {
+        const element = data.data.pages[state.currentPage].elements[state.currentElement];
+        element.content.text = $(event.target).val();
+    };
+
+    const elementSetSound = (event) => {
+        const element = data.data.pages[state.currentPage].elements[state.currentElement];
+        element.content.sound = $(event.target).val();
+    };
+
+    const elementSetStyle = (event) => {
+        const prop = $(event.target).attr('data-js-css-value');
         const valueValue = $('[data-js-css-value="' + prop + '"]').val();
         const valueUnit = $('[data-js-css-unit="' + prop + '"]').val();
         const propValue = valueValue + (valueUnit ? valueUnit : "");
@@ -36,114 +117,40 @@
         element.style[prop] = propValue;
     };
 
-    const elementUpdateText = (text) => {
-        const element = data.data.pages[state.currentPage].elements[state.currentElement];
-        element.content.text = text;
-    };
-    const elementUpdateSound = (sound) => {
-        const element = data.data.pages[state.currentPage].elements[state.currentElement];
-        element.content.sound = sound;
+    const elementSetDraggable = (event) => {
+        const isDraggable = event.target.checked;
+        data.elementSetDraggable(state.currentPage, state.currentElement, isDraggable);
     };
 
     const attachHandlers = () => {
 
-        $('body').on('click', '[data-js-action="presentation-export"]', () => {
-            alert('what?');
-        });
-
-        $('body').on('click', '[data-js-action="presentation-import"]', () => {
-            alert('what?');
-        });
-
-        $('body').on('click', '[data-js-action="presentation-reset"]', () => {
-            if (!confirm('delete everything and start over?')) { return; }
-            if (!confirm('sure?')) { return; }
-            if (!confirm('absolutely?')) { return; }
-            data.reset();
-        });
-
-        $('body').on('change', '[data-js-action="input-add-sound"]', () => {
-            const formElement = $('[data-js-action="input-add-sound"]').closest('form')[0];
-            const formData = new FormData(formElement);
-//            formData.append('file', $('[data-js-action="input-add-sound"]')[0].files);
-//            formData.append('type', 'sound');
-            $.ajax({
-                url: '/api/upload.php',
-                type: 'POST',
-                data: formData,
-                processData: false,
-                enctype: 'multipart/form-data',
-                contentType: false,
-                success: (result) => {
-                    fillSoundSelector();
-                }
-            });
-        });
+        // general
+        $('body').on('click', '[data-js-action="mode-set-edit"]', modeEditOn);
+        $('body').on('click', '[data-js-action="mode-set-play"]', modeEditOff);
+        $('body').on('click', '[data-js-action="presentation-export"]', dataExport);
+        $('body').on('click', '[data-js-action="presentation-import"]', dataImport);
+        $('body').on('click', '[data-js-action="presentation-reset"]', dataReset);
+        $('body').on('change', '[data-js-action="media-add-sound"]', mediaSoundUpload);
 
         // pages
-
-        $('body').on('click', '[data-js-action="page-add"]', () => {
-            data.pageAdd();
-            pageNext();
-        });
-
-        $('body').on('click', '[data-js-action="page-delete"]', () => {
-            state.currentPage = Math.min(state.currentPage, data.data.pages.length - 2);
-            data.pageDelete(state.currentPage);
-        });
-
-        $('body').on('click', '[data-js-action="page-prev"]', () => {
-            pagePrev();
-        });
-        $('body').on('click', '[data-js-action="page-next"]', () => {
-            pageNext();
-        });
+        $('body').on('click', '[data-js-action="page-add"]', pageAdd);
+        $('body').on('click', '[data-js-action="page-delete"]', pageDelete);
+        $('body').on('click', '[data-js-action="page-prev"]', pagePrev);
+        $('body').on('click', '[data-js-action="page-next"]', pageNext);
 
         // elements
-
-        $('body').on('mousedown', '.content [data-js-element-index]', (event) => {
-            state.currentElement = parseInt($(event.target).attr('data-js-element-index'));
-        });
-
-        $('body').on('dragEnd', '.element', (event) => {
-            console.log(event);
-        });
-
-        $('body').on('click', '[data-js-action="element-add"]', () => {
-            data.elementAdd(state.currentPage);
-            elementNext();
-        });
-        $('body').on('click', '[data-js-action="element-delete"]', () => {
-            state.currentElement = Math.min(state.currentElement, data.data.pages[state.currentPage].elements.length - 2);
-            data.elementDelete(state.currentPage, state.currentElement);
-        });
-        $('body').on('click', '[data-js-action="element-prev"]', () => {
-            elementPrev();
-        });
-        $('body').on('click', '[data-js-action="element-next"]', () => {
-            elementNext();
-        });
+        $('body').on('mousedown', '.content [data-js-element-index]', elementSelect);
+        $('body').on('click', '[data-js-action="element-add"]', elementAdd);
+        $('body').on('click', '[data-js-action="element-delete"]', elementDelete);
+        $('body').on('click', '[data-js-action="element-prev"]', elementPrev);
+        $('body').on('click', '[data-js-action="element-next"]', elementNext);
 
         // design and content
-
-        $('body').on('change', '[data-js-content="element-text"]', (event) => {
-            elementUpdateText($(event.target).val());
-        });
-
-        $('body').on('change', '[data-js-content="element-sound"]', (event) => {
-            elementUpdateSound($(event.target).val())
-        });
-        $('body').on('change', '[data-js-css-value]', (event) => {
-            const prop = $(event.target).attr('data-js-css-value');
-            elementUpdateStyle(prop);
-        });
-        $('body').on('change', '[data-js-css-unit]', (event) => {
-            const prop = $(event.target).attr('data-js-css-unit');
-            elementUpdateStyle(prop);
-        });
-        $('body').on('change', '[data-js-behavior="draggable"]', (event) => {
-            data.elementSetDraggable(state.currentPage, state.currentElement, event.target.checked);
-        });
+        $('body').on('change', '[data-js-content="element-text"]', elementSetText);
+        $('body').on('change', '[data-js-content="element-sound"]', elementSetSound);
+        $('body').on('change', '[data-js-action="element-css-value"]', elementSetStyle);
+        $('body').on('change', '[data-js-action="element-css-unit"]', elementSetStyle);
+        $('body').on('change', '[data-js-behavior="draggable"]', elementSetDraggable);
 
     }
 
@@ -268,6 +275,10 @@
             });
 
         };
+
+        if (elem.content.sound) {
+            $div.append('<div class="element-sound-icon fa-solid fa-music"></div>');
+        }
         return $div;
 
     };
@@ -342,6 +353,7 @@
 
         attachHandlers();
         fillSoundSelector();
+        modeEditOn();
 
         mobx.autorun(
             () => render()
