@@ -28,9 +28,26 @@
                     Presentation
                 </div>
                 <div class="admin-block-content">
-                    <button class="admin-control-icon-button fa-solid fa-file" data-js-action="presentation-reset"></button>
-                    <button class="admin-control-icon-button fa-solid fa-file-arrow-down" data-js-action="presentation-export"></button>
-                    <button class="admin-control-icon-button fa-solid fa-poo" data-js-action="presentation-test"></button>
+                    <div class="admin-block-control-group">
+                        <button class="admin-control-icon-button fa-solid fa-file" data-js-action="presentation-reset"></button>
+                        <button class="admin-control-icon-button fa-solid fa-floppy-disk" data-js-action="presentation-export"></button>
+                        <button class="admin-control-icon-button fa-solid fa-folder-open" data-js-action="presentation-export"></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-block">
+                <div class="admin-block-header">
+                    Media
+                </div>
+                <div class="admin-block-content">
+                    <div class="admin-block-control-group admin-block-control-group-vertical">
+                        <label>Add sound</label>
+                        <form>
+                            <input type="hidden" name="type" value="sound" />
+                            <input type="file" name="file[]" data-js-action="input-add-sound" multiple="multiple" />
+                        </form>
+                    </div>
                 </div>
             </div>
 
@@ -41,10 +58,12 @@
                     <span data-js-target="pages-summary"></span>
                 </div>
                 <div class="admin-block-content">
-                    <button class="admin-control-icon-button fa-solid fa-plus" data-js-action="page-add"></button>
-                    <button class="admin-control-icon-button fa-solid fa-minus" data-js-action="page-delete"></button>
-                    <button class="admin-control-icon-button fa-solid fa-arrow-left" data-js-action="page-prev"></button>
-                    <button class="admin-control-icon-button fa-solid fa-arrow-right" data-js-action="page-next"></button>
+                    <div class="admin-block-control-group">
+                        <button class="admin-control-icon-button fa-solid fa-plus" data-js-action="page-add"></button>
+                        <button class="admin-control-icon-button fa-solid fa-minus" data-js-action="page-delete"></button>
+                        <button class="admin-control-icon-button fa-solid fa-arrow-left" data-js-action="page-prev"></button>
+                        <button class="admin-control-icon-button fa-solid fa-arrow-right" data-js-action="page-next"></button>
+                    </div>
                 </div>
             </div>
 
@@ -55,10 +74,12 @@
                     <span data-js-target="elements-summary"></span>
                 </div>
                 <div class="admin-block-content">
-                    <button class="admin-control-icon-button fa-solid fa-plus" data-js-action="element-add"></button>
-                    <button class="admin-control-icon-button fa-solid fa-minus" data-js-action="element-delete"></button>
-                    <button class="admin-control-icon-button fa-solid fa-arrow-left" data-js-action="element-prev"></button>
-                    <button class="admin-control-icon-button fa-solid fa-arrow-right" data-js-action="element-next"></button>
+                    <div class="admin-block-control-group">
+                        <button class="admin-control-icon-button fa-solid fa-plus" data-js-action="element-add"></button>
+                        <button class="admin-control-icon-button fa-solid fa-minus" data-js-action="element-delete"></button>
+                        <button class="admin-control-icon-button fa-solid fa-arrow-left" data-js-action="element-prev"></button>
+                        <button class="admin-control-icon-button fa-solid fa-arrow-right" data-js-action="element-next"></button>
+                    </div>
                 </div>
             </div>
 
@@ -75,10 +96,6 @@
                         <label>Sound</label>
                         <select data-js-content="element-sound"></select>
                     </div>
-                    <div class="admin-block-control-group">
-                        <label for="data-js-content-draggable">Draggable</label>
-                        <input id="data-js-content-draggable" type="checkbox" data-js-behavior="draggable">
-                    </div>
                 </div>
             </div>
 
@@ -87,6 +104,10 @@
                     Design
                 </div>
                 <div class="admin-block-content">
+                    <div class="admin-block-control-group">
+                        <label for="data-js-content-draggable">Draggable</label>
+                        <input id="data-js-content-draggable" type="checkbox" data-js-behavior="draggable">
+                    </div>
                     <div class="admin-block-control-group">
                         <label>Left (%)</label>
                         <input type="number" data-js-css-value="left">

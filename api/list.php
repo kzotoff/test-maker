@@ -1,7 +1,7 @@
 <?php
 
 $type = "." . $_GET["type"];
-$working_dir = __DIR__ . "/../media";
+$working_dir = __DIR__ . "/../media/sound/";
 
 $dir = scandir($working_dir);
 

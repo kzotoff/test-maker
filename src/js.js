@@ -47,12 +47,12 @@
 
     const attachHandlers = () => {
 
-        $('body').on('click', '[data-js-action="presentation-test"]', () => {
-            //
+        $('body').on('click', '[data-js-action="presentation-export"]', () => {
+            alert('what?');
         });
 
-        $('body').on('click', '[data-js-action="presentation-export"]', () => {
-            //
+        $('body').on('click', '[data-js-action="presentation-import"]', () => {
+            alert('what?');
         });
 
         $('body').on('click', '[data-js-action="presentation-reset"]', () => {
@@ -62,7 +62,26 @@
             data.reset();
         });
 
-        // button handlers
+        $('body').on('change', '[data-js-action="input-add-sound"]', () => {
+            const formElement = $('[data-js-action="input-add-sound"]').closest('form')[0];
+            const formData = new FormData(formElement);
+//            formData.append('file', $('[data-js-action="input-add-sound"]')[0].files);
+//            formData.append('type', 'sound');
+            $.ajax({
+                url: '/api/upload.php',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                enctype: 'multipart/form-data',
+                contentType: false,
+                success: (result) => {
+                    fillSoundSelector();
+                }
+            });
+        });
+
+        // pages
+
         $('body').on('click', '[data-js-action="page-add"]', () => {
             data.pageAdd();
             pageNext();
@@ -173,7 +192,7 @@
 
         const element = data.data.pages[state.currentPage].elements[state.currentElement];
         if (!element.style) {
-            console.warn('element has no style section, it is strange');
+            console.warn('element has no style section, it is so strange');
             return;
         }
 
@@ -294,6 +313,7 @@
         );
 
     };
+
     const render = () => {
 
         console.log('render');

@@ -89,6 +89,8 @@ html {
     flex-direction: row;
     align-items: center;
     height: 26px;
+    margin-top: 4px;
+    margin-bottom: 4px;
 }
 .admin-block-control-group:not(:last-child) {
     margin-bottom: 8px;
@@ -111,19 +113,22 @@ html {
 
 .admin input[type="text"],
 .admin input[type="number"],
+.admin input[type="file"],
 .admin textarea,
 .admin select {
     font-size: 100%;
     padding: 4px 2px;
+    border: 1px var(--control-border-color) solid;
+    border-radius: 4px;
+    background-color: white;
 }
+
 
 .admin input:focus,
 .admin textarea:focus,
 .admin select:focus {
     box-shadow: 0 0 2px 2px rgb(0, 153, 255);
-    background-color: white;
     outline: none;
-    border: 1px var(--control-color) solid;
 }
 
 .admin-block-control-group > input[type="checkbox"] {
