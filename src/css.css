@@ -77,6 +77,17 @@ html {
 .mode-edit .mode-control-button[data-js-action="mode-set-edit"] {
     display: none;
 }
+
+.audio-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    /* background-color: rgba(0, 0, 0, 0.12); */
+    display: none;
+}
 /* admin ******************************************************/
 
 .admin {

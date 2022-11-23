@@ -5,13 +5,20 @@
     console.log('yeah we are starting');
 
     const data = new PresentationData();
+    const audio = new Audio();
+
     data.loadFromStorage();
 
     const state = mobx.observable({
         isEditMode: true,
+        playingPageSound: false,
         currentPage: 0,
         currentElement: 0,
     });
+
+    //
+    //
+    //
 
     const modeEditOn = () => {
         state.isEditMode = true;
@@ -22,6 +29,22 @@
         state.isEditMode = false;
         $('html').removeClass('mode-edit').addClass('mode-play');
     };
+
+    const audioPlay = (url) => {
+        audio.pause();
+        audio.src = url;
+        audio.play();
+        $('.audio-overlay').css('display', 'block');
+    };
+
+    const audioStop = () => {
+        audio.pause();
+        $('.audio-overlay').css('display', 'none');
+    };
+
+    //
+    //
+    //
 
     const dataReset = () => {
         if (!confirm('delete everything and start over?')) { return; }
@@ -122,6 +145,21 @@
         data.elementSetDraggable(state.currentPage, state.currentElement, isDraggable);
     };
 
+    const elementAudioPlay = (event) => {
+        const elementIndex = parseInt($(event.target).attr('data-js-element-index'));
+        const soundSrc = data.data.pages[state.currentPage].elements[elementIndex].content.sound;
+        console.log('sound:', soundSrc);
+        if (!soundSrc) {
+            return;
+        }
+        const url = '/media/sound/' + soundSrc;
+        audioPlay(url);
+    }
+
+    const elementAudioStop = () => {
+        audioStop();
+    };
+
     const attachHandlers = () => {
 
         // general
@@ -153,22 +191,8 @@
         $('body').on('change', '[data-js-behavior="draggable"]', elementSetDraggable);
 
         // TODO refactor
-        $('body').on('click', '.element', (event) => {
-            const elementIndex = parseInt($(event.target).attr('data-js-element-index'));
-            const soundSrc = data.data.pages[state.currentPage].elements[elementIndex].content.sound;
-            console.log('sound:', soundSrc);
-            if (!soundSrc) {
-                return;
-            }
-
-            const url = '/media/sound/' + soundSrc;
-            const audio = new Audio(url);
-            audio.play();
-            //const player = $('[data-js-audio="content-player"]');
-            //player.append('<source>', '/media/sound/' + soundSrc);
-            //player[0].play();
-
-        });
+        $('body').on('click', '.element', elementAudioPlay);
+        $('body').on('click', '.audio-overlay', elementAudioStop);
 
     }
 
