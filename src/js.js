@@ -65,7 +65,7 @@
         const formElement = $(event.target).closest('form')[0];
         const formData = new FormData(formElement);
         $.ajax({
-            url: '/api/upload.php',
+            url: './api/upload.php',
             type: 'POST',
             data: formData,
             processData: false,
@@ -152,7 +152,7 @@
         if (!soundSrc) {
             return;
         }
-        const url = '/media/sound/' + soundSrc;
+        const url = './media/sound/' + soundSrc;
         audioPlay(url);
     }
 
@@ -337,7 +337,7 @@
 
     const fillSoundSelector = () => {
         $.get(
-            "/api/list.php?type=mp3",
+            "./api/list.php?type=mp3",
             (result) => {
                 const $select = $('[data-js-content="element-sound"]');
                 try {
