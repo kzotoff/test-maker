@@ -1,14 +1,25 @@
 <?php
 
-$type = "." . $_GET["type"];
-$working_dir = __DIR__ . "/../media/sound/";
+
+
+switch ($_GET["type"]) {
+    case 'sound':
+        $extensions = ['mp3', 'ogg'];
+        $working_dir = __DIR__ . "/../media/sound/";
+    break;
+    case 'image':
+        $extensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
+        $working_dir = __DIR__ . "/../media/image/";
+    break;
+}
 
 $dir = scandir($working_dir);
 
 $result = [];
 foreach ($dir as $filename) {
-    if (substr($filename, -4) == $type) {
+    $pathinfo = pathinfo($filename);
+    if (in_array($pathinfo['extension'], $extensions)) {
         $result[] = $filename;
     }
 }
-print_r(json_encode($result));
+echo json_encode($result);

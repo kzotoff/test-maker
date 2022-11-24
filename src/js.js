@@ -61,7 +61,7 @@
 
     };
 
-    const mediaSoundUpload = (event) => {
+    const mediaUpload = (event) => {
         const formElement = $(event.target).closest('form')[0];
         const formData = new FormData(formElement);
         $.ajax({
@@ -73,6 +73,7 @@
             contentType: false,
             success: (result) => {
                 fillSoundSelector();
+                fillImageSelector();
             }
         });
     }
@@ -131,6 +132,11 @@
         element.content.sound = $(event.target).val();
     };
 
+    const elementSetImage = (event) => {
+        const element = data.data.pages[state.currentPage].elements[state.currentElement];
+        element.content.image = $(event.target).val();
+    };
+
     const elementSetStyle = (event) => {
         const prop = $(event.target).attr('data-js-css-value');
         const valueValue = $('[data-js-css-value="' + prop + '"]').val();
@@ -168,7 +174,7 @@
         $('body').on('click', '[data-js-action="presentation-export"]', dataExport);
         $('body').on('click', '[data-js-action="presentation-import"]', dataImport);
         $('body').on('click', '[data-js-action="presentation-reset"]', dataReset);
-        $('body').on('change', '[data-js-action="media-sound-upload"]', mediaSoundUpload);
+        $('body').on('change', '[data-js-action="media-upload"]', mediaUpload);
 
         // pages
         $('body').on('click', '[data-js-action="page-add"]', pageAdd);
@@ -186,6 +192,7 @@
         // design and content
         $('body').on('change', '[data-js-content="element-text"]', elementSetText);
         $('body').on('change', '[data-js-content="element-sound"]', elementSetSound);
+        $('body').on('change', '[data-js-content="element-image"]', elementSetImage);
         $('body').on('change', '[data-js-action="element-css-value"]', elementSetStyle);
         $('body').on('change', '[data-js-action="element-css-unit"]', elementSetStyle);
         $('body').on('change', '[data-js-behavior="draggable"]', elementSetDraggable);
@@ -233,6 +240,7 @@
 
         $('[data-js-content="element-text"]').text("");
         $('[data-js-content="element-sound"]').val(null);
+        $('[data-js-content="element-image"]').val(null);
         $('[data-js-behavior="draggable"]').prop("checked", false);
     };
 
@@ -267,6 +275,7 @@
         }
         $('[data-js-content="element-text"]').text(element.content.text);
         $('[data-js-content="element-sound"]').val(element.content.sound);
+        $('[data-js-content="element-image"]').val(element.content.image);
         $('[data-js-behavior="draggable"]').prop("checked", _.get(element, "behavior.draggable", false));
     };
 
@@ -321,6 +330,10 @@
         if (elem.content.sound) {
             $div.append('<div class="element-sound-icon fa-solid fa-music"></div>');
         }
+
+        if (elem.content.image) {
+            $div.css('background-image', 'url(./media/image/' + elem.content.image + ')');
+        }
         return $div;
 
     };
@@ -335,11 +348,15 @@
         });
     };
 
-    const fillSoundSelector = () => {
+    const fillMediaSelector = (type, selectSelector) => {
+
+        // type is "sound" or "image"
+        const url = "/api/list.php?type=" + type;
+
         $.get(
-            "/api/list.php?type=mp3",
+            url,
             (result) => {
-                const $select = $('[data-js-content="element-sound"]');
+                const $select = $(selectSelector);
                 try {
                     const list = JSON.parse(result);
                     $select.empty();
@@ -358,13 +375,20 @@
                         )
                     });
                 } catch (e) {
-                    console.warn('something went wrong while loading mp3 list', e)
+                    console.warn('something went wrong while loading list for type "' + type + '"', e);
                 }
 
 
             }
         );
+    };
 
+    const fillSoundSelector = () => {
+        fillMediaSelector('sound', '[data-js-content="element-sound"]');
+    };
+
+    const fillImageSelector = () => {
+        fillMediaSelector('image', '[data-js-content="element-image"]');
     };
 
     const render = () => {
@@ -395,6 +419,7 @@
 
         attachHandlers();
         fillSoundSelector();
+        fillImageSelector();
         modeEditOn();
 
         mobx.autorun(

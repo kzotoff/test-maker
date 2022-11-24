@@ -52,7 +52,14 @@
                         <label>Add sound</label>
                         <form>
                             <input type="hidden" name="type" value="sound" />
-                            <input type="file" name="file[]" data-js-action="media-sound-upload" multiple="multiple" />
+                            <input type="file" name="file[]" data-js-action="media-upload" multiple="multiple" />
+                        </form>
+                    </div>
+                    <div class="admin-block-control-group admin-block-control-group-vertical">
+                        <label>Add image</label>
+                        <form>
+                            <input type="hidden" name="type" value="image" />
+                            <input type="file" name="file[]" data-js-action="media-upload" multiple="multiple" />
                         </form>
                     </div>
                 </div>
@@ -102,6 +109,10 @@
                     <div class="admin-block-control-group admin-block-control-group-vertical">
                         <label>Sound</label>
                         <select data-js-content="element-sound"></select>
+                    </div>
+                    <div class="admin-block-control-group admin-block-control-group-vertical">
+                        <label>Image</label>
+                        <select data-js-content="element-image"></select>
                     </div>
                 </div>
             </div>
