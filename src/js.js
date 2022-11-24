@@ -65,7 +65,7 @@
         const formElement = $(event.target).closest('form')[0];
         const formData = new FormData(formElement);
         $.ajax({
-            url: '/api/upload.php',
+            url: './api/upload.php',
             type: 'POST',
             data: formData,
             processData: false,
@@ -158,7 +158,7 @@
         if (!soundSrc) {
             return;
         }
-        const url = '/media/sound/' + soundSrc;
+        const url = './media/sound/' + soundSrc;
         audioPlay(url);
     }
 
