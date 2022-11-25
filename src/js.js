@@ -381,7 +381,7 @@
     const fillMediaSelector = (type, selectSelector) => {
 
         // type is "sound" or "image"
-        const url = "/api/list.php?type=" + type;
+        const url = "./api/list.php?type=" + type;
 
         $.get(
             url,
