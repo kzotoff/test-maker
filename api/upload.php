@@ -9,7 +9,7 @@ switch ($_POST['type']) {
         $target_folder = __DIR__ . "/../media/sound/";
         break;
     case "image":
-        $target_folder = __DIR__ . "/../media/images/";
+        $target_folder = __DIR__ . "/../media/image/";
         break;
 }
 
