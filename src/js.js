@@ -14,11 +14,26 @@
         playingPageSound: false,
         currentPage: 0,
         currentElement: 0,
+
+        // block names corresponing to data-admin-block-id attribue
+        adminBlocksShown: {
+            "general": true,
+            "media": false,
+            "pages": true,
+            "elements": true,
+            "content": true,
+            "design": true,
+        },
     });
 
     //
     //
     //
+
+    const switchAdminBlockVisible = (event) => {
+        const blockId = $(event.target).closest('.admin-block').attr('data-admin-block-id');
+        state.adminBlocksShown[blockId] = !state.adminBlocksShown[blockId];
+    };
 
     const modeEditOn = () => {
         state.isEditMode = true;
@@ -76,7 +91,7 @@
                 fillImageSelector();
             }
         });
-    }
+    };
 
     const pagePrev = () => {
         state.currentPage = Math.max(state.currentPage - 1, 0);
@@ -160,7 +175,7 @@
         }
         const url = './media/sound/' + soundSrc;
         audioPlay(url);
-    }
+    };
 
     const elementAudioStop = () => {
         audioStop();
@@ -169,6 +184,7 @@
     const attachHandlers = () => {
 
         // general
+        $('body').on('click', '.admin-block-header', switchAdminBlockVisible);
         $('body').on('click', '[data-js-action="mode-set-edit"]', modeEditOn);
         $('body').on('click', '[data-js-action="mode-set-play"]', modeEditOff);
         $('body').on('click', '[data-js-action="presentation-export"]', dataExport);
@@ -197,11 +213,14 @@
         $('body').on('change', '[data-js-action="element-css-unit"]', elementSetStyle);
         $('body').on('change', '[data-js-behavior="draggable"]', elementSetDraggable);
 
-        // TODO refactor
         $('body').on('click', '.element', elementAudioPlay);
         $('body').on('click', '.audio-overlay', elementAudioStop);
 
-    }
+    };
+
+    //
+    //
+    //
 
     const renderPagesSummary = () => {
         const div = $('[data-js-target="pages-summary"]');
@@ -223,6 +242,17 @@
             "/" +
             data.data.pages[state.currentPage].elements.length
         );
+    };
+
+    const updateAdminBlockState = () => {
+        for (let blockName in state.adminBlocksShown) {
+            const block = $('[data-admin-block-id="' + blockName+ '"]');
+            if (state.adminBlocksShown[blockName]) {
+                block.removeClass('admin-block-collapsed');
+            } else {
+                block.addClass('admin-block-collapsed');
+            }
+        }
     };
 
     const clearElementPropControls = () => {
@@ -397,6 +427,7 @@
         renderPagesSummary();
         renderElementsSummary();
         renderElements(".content", data.data.pages[state.currentPage]);
+        updateAdminBlockState();
         fillCssFields();
     }
 
@@ -425,6 +456,6 @@
         mobx.autorun(
             () => render()
         );
-    })
+    });
 
 })(jQuery, _);
