@@ -189,12 +189,40 @@
         const doAlways = () => true;
 
         const handlers = [
+
+            // general
             ['click', '[data-js-action="mode-set-edit"]', doAlways, modeEditOn],
             ['click', '[data-js-action="mode-set-play"]', doAlways, modeEditOff],
 
             ['click', '.element', doIfPlayMode, elementAudioPlay],
             ['click', '.audio-overlay', doIfPlayMode, elementAudioStop],
 
+            ['click', '.admin-block-header', doIfEditMode, switchAdminBlockVisible],
+            ['click', '[data-js-action="presentation-export"]', doIfEditMode, dataExport],
+            ['click', '[data-js-action="presentation-import"]', doIfEditMode, dataImport],
+            ['click', '[data-js-action="presentation-reset"]', doIfEditMode, dataReset],
+            ['change', '[data-js-action="media-upload"]', doIfEditMode, mediaUpload],
+
+            // pages
+            ['click', '[data-js-action="page-add"]', doIfEditMode, pageAdd],
+            ['click', '[data-js-action="page-delete"]', doIfEditMode, pageDelete],
+            ['click', '[data-js-action="page-prev"]', doIfEditMode, pagePrev],
+            ['click', '[data-js-action="page-next"]', doIfEditMode, pageNext],
+
+            // elements
+            ['mousedown', '.content [data-js-element-index]', doIfEditMode, elementSelect],
+            ['click', '[data-js-action="element-add"]', doIfEditMode, elementAdd],
+            ['click', '[data-js-action="element-delete"]', doIfEditMode, elementDelete],
+            ['click', '[data-js-action="element-prev"]', doIfEditMode, elementPrev],
+            ['click', '[data-js-action="element-next"]', doIfEditMode, elementNext],
+
+            // design and content
+            ['change', '[data-js-content="element-text"]', doIfEditMode, elementSetText],
+            ['change', '[data-js-content="element-sound"]', doIfEditMode, elementSetSound],
+            ['change', '[data-js-content="element-image"]', doIfEditMode, elementSetImage],
+            ['change', '[data-js-action="element-css-value"]', doIfEditMode, elementSetStyle],
+            ['change', '[data-js-action="element-css-unit"]', doIfEditMode, elementSetStyle],
+            ['change', '[data-js-behavior="draggable"]', doIfEditMode, elementSetDraggable],
         ];
 
         handlers.forEach(handlerInfo => {
@@ -209,41 +237,6 @@
                     }
                 });
         });
-
-        // general
-        // $('body').on('click', '[data-js-action="mode-set-edit"]', modeEditOn);
-        // $('body').on('click', '[data-js-action="mode-set-play"]', modeEditOff);
-
-        // also some handlers are only for edit mode or play mode
-        if (state.editMode) {
-            $('body').on('click', '.admin-block-header', switchAdminBlockVisible);
-            $('body').on('click', '[data-js-action="presentation-export"]', dataExport);
-            $('body').on('click', '[data-js-action="presentation-import"]', dataImport);
-            $('body').on('click', '[data-js-action="presentation-reset"]', dataReset);
-            $('body').on('change', '[data-js-action="media-upload"]', mediaUpload);
-
-            // pages
-            $('body').on('click', '[data-js-action="page-add"]', pageAdd);
-            $('body').on('click', '[data-js-action="page-delete"]', pageDelete);
-            $('body').on('click', '[data-js-action="page-prev"]', pagePrev);
-            $('body').on('click', '[data-js-action="page-next"]', pageNext);
-
-            // elements
-            $('body').on('mousedown', '.content [data-js-element-index]', elementSelect);
-            $('body').on('click', '[data-js-action="element-add"]', elementAdd);
-            $('body').on('click', '[data-js-action="element-delete"]', elementDelete);
-            $('body').on('click', '[data-js-action="element-prev"]', elementPrev);
-            $('body').on('click', '[data-js-action="element-next"]', elementNext);
-
-            // design and content
-            $('body').on('change', '[data-js-content="element-text"]', elementSetText);
-            $('body').on('change', '[data-js-content="element-sound"]', elementSetSound);
-            $('body').on('change', '[data-js-content="element-image"]', elementSetImage);
-            $('body').on('change', '[data-js-action="element-css-value"]', elementSetStyle);
-            $('body').on('change', '[data-js-action="element-css-unit"]', elementSetStyle);
-            $('body').on('change', '[data-js-behavior="draggable"]', elementSetDraggable);
-
-        }
 
     };
 
@@ -367,10 +360,6 @@
             }
         }
 
-        if (index === state.currentElement) {
-            $div.css("outline", "2px red dashed");
-        }
-
         if (_.get(elem, "behavior.draggable")) {
             $div.draggable({
                 stop: () => {
@@ -394,6 +383,13 @@
         if (elem.content.image) {
             $div.css('background-image', 'url(./media/image/' + elem.content.image + ')');
         }
+
+        if (state.editMode) {
+            if (index === state.currentElement) {
+                $div.css("outline", "2px red dashed");
+            }
+        }
+
         return $div;
 
     };
@@ -476,11 +472,6 @@
                     data.saveToStorage();
                 }, 3000);
             }
-        );
-
-        mobx.reaction(
-            () => state.editMode,
-            () => { render(); attachHandlers(); }
         );
 
         attachHandlers();
