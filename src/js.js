@@ -10,7 +10,7 @@
     data.loadFromStorage();
 
     const state = mobx.observable({
-        isEditMode: true,
+        editMode: true,
         playingPageSound: false,
         currentPage: 0,
         currentElement: 0,
@@ -36,13 +36,14 @@
     };
 
     const modeEditOn = () => {
-        state.isEditMode = true;
         $('html').removeClass('mode-play').addClass('mode-edit');
+        state.editMode = true;
     };
 
     const modeEditOff = () => {
-        state.isEditMode = false;
         $('html').removeClass('mode-edit').addClass('mode-play');
+        state.editMode = false;
+        render();
     };
 
     const audioPlay = (url) => {
@@ -183,38 +184,66 @@
 
     const attachHandlers = () => {
 
+        const doIfEditMode = () => state.editMode;
+        const doIfPlayMode = () => !state.editMode;
+        const doAlways = () => true;
+
+        const handlers = [
+            ['click', '[data-js-action="mode-set-edit"]', doAlways, modeEditOn],
+            ['click', '[data-js-action="mode-set-play"]', doAlways, modeEditOff],
+
+            ['click', '.element', doIfPlayMode, elementAudioPlay],
+            ['click', '.audio-overlay', doIfPlayMode, elementAudioStop],
+
+        ];
+
+        handlers.forEach(handlerInfo => {
+            const eventType = handlerInfo[0];
+            const selector = handlerInfo[1];
+            const availability = handlerInfo[2];
+            const handler = handlerInfo[3];
+
+                $('body').on(eventType, selector, (event) => {
+                    if (availability()) {
+                        handler(event);
+                    }
+                });
+        });
+
         // general
-        $('body').on('click', '.admin-block-header', switchAdminBlockVisible);
-        $('body').on('click', '[data-js-action="mode-set-edit"]', modeEditOn);
-        $('body').on('click', '[data-js-action="mode-set-play"]', modeEditOff);
-        $('body').on('click', '[data-js-action="presentation-export"]', dataExport);
-        $('body').on('click', '[data-js-action="presentation-import"]', dataImport);
-        $('body').on('click', '[data-js-action="presentation-reset"]', dataReset);
-        $('body').on('change', '[data-js-action="media-upload"]', mediaUpload);
+        // $('body').on('click', '[data-js-action="mode-set-edit"]', modeEditOn);
+        // $('body').on('click', '[data-js-action="mode-set-play"]', modeEditOff);
 
-        // pages
-        $('body').on('click', '[data-js-action="page-add"]', pageAdd);
-        $('body').on('click', '[data-js-action="page-delete"]', pageDelete);
-        $('body').on('click', '[data-js-action="page-prev"]', pagePrev);
-        $('body').on('click', '[data-js-action="page-next"]', pageNext);
+        // also some handlers are only for edit mode or play mode
+        if (state.editMode) {
+            $('body').on('click', '.admin-block-header', switchAdminBlockVisible);
+            $('body').on('click', '[data-js-action="presentation-export"]', dataExport);
+            $('body').on('click', '[data-js-action="presentation-import"]', dataImport);
+            $('body').on('click', '[data-js-action="presentation-reset"]', dataReset);
+            $('body').on('change', '[data-js-action="media-upload"]', mediaUpload);
 
-        // elements
-        $('body').on('mousedown', '.content [data-js-element-index]', elementSelect);
-        $('body').on('click', '[data-js-action="element-add"]', elementAdd);
-        $('body').on('click', '[data-js-action="element-delete"]', elementDelete);
-        $('body').on('click', '[data-js-action="element-prev"]', elementPrev);
-        $('body').on('click', '[data-js-action="element-next"]', elementNext);
+            // pages
+            $('body').on('click', '[data-js-action="page-add"]', pageAdd);
+            $('body').on('click', '[data-js-action="page-delete"]', pageDelete);
+            $('body').on('click', '[data-js-action="page-prev"]', pagePrev);
+            $('body').on('click', '[data-js-action="page-next"]', pageNext);
 
-        // design and content
-        $('body').on('change', '[data-js-content="element-text"]', elementSetText);
-        $('body').on('change', '[data-js-content="element-sound"]', elementSetSound);
-        $('body').on('change', '[data-js-content="element-image"]', elementSetImage);
-        $('body').on('change', '[data-js-action="element-css-value"]', elementSetStyle);
-        $('body').on('change', '[data-js-action="element-css-unit"]', elementSetStyle);
-        $('body').on('change', '[data-js-behavior="draggable"]', elementSetDraggable);
+            // elements
+            $('body').on('mousedown', '.content [data-js-element-index]', elementSelect);
+            $('body').on('click', '[data-js-action="element-add"]', elementAdd);
+            $('body').on('click', '[data-js-action="element-delete"]', elementDelete);
+            $('body').on('click', '[data-js-action="element-prev"]', elementPrev);
+            $('body').on('click', '[data-js-action="element-next"]', elementNext);
 
-        $('body').on('click', '.element', elementAudioPlay);
-        $('body').on('click', '.audio-overlay', elementAudioStop);
+            // design and content
+            $('body').on('change', '[data-js-content="element-text"]', elementSetText);
+            $('body').on('change', '[data-js-content="element-sound"]', elementSetSound);
+            $('body').on('change', '[data-js-content="element-image"]', elementSetImage);
+            $('body').on('change', '[data-js-action="element-css-value"]', elementSetStyle);
+            $('body').on('change', '[data-js-action="element-css-unit"]', elementSetStyle);
+            $('body').on('change', '[data-js-behavior="draggable"]', elementSetDraggable);
+
+        }
 
     };
 
@@ -322,8 +351,9 @@
 
     const renderElement = (elem, index) => {
         const $div = $("<div>")
-            .addClass("element")
-            .addClass("element-default")
+            .attr('data-id', (new Date()).toString())
+            .addClass('element')
+            .addClass('element-default')
             .attr('data-js-element-index', index)
             ;
 
@@ -446,6 +476,11 @@
                     data.saveToStorage();
                 }, 3000);
             }
+        );
+
+        mobx.reaction(
+            () => state.editMode,
+            () => { render(); attachHandlers(); }
         );
 
         attachHandlers();
