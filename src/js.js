@@ -170,7 +170,7 @@
     const elementAudioPlay = (event) => {
         const elementIndex = parseInt($(event.target).attr('data-js-element-index'));
         const soundSrc = data.data.pages[state.currentPage].elements[elementIndex].content.sound;
-        console.log('sound:', soundSrc);
+        console.log('sound source:', soundSrc);
         if (!soundSrc) {
             return;
         }
@@ -233,6 +233,7 @@
 
                 $('body').on(eventType, selector, (event) => {
                     if (availability()) {
+                        console.log('running handler for', event.type);
                         handler(event);
                     }
                 });
@@ -364,7 +365,7 @@
             $div.draggable({
                 stop: () => {
                     const $offset = $div.offset();
-                    console.log($offset);
+                    console.log('drag stop:', $offset);
 
                     const newLeft = calcPosition($offset.left, $('.content').outerWidth(), $('[data-js-css-unit="left"]').val());
                     const newTop = calcPosition($offset.top, $('.content').outerHeight(), $('[data-js-css-unit="top"]').val());
@@ -482,6 +483,15 @@
         mobx.autorun(
             () => render()
         );
+        
+        // for (const key in $('body')[0]) {
+        //     if(/^on/.test(key) && !/mouse/.test(key)) {
+        //         const eventType = key.substr(2);
+        //         console.log('more: ' + eventType);
+        //         target.addEventListener(eventType, e => { console.log(e); });
+        //     }
+        // }
+        
     });
 
 })(jQuery, _);
