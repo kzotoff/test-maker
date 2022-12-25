@@ -154,7 +154,7 @@
     };
 
     const elementSetStyle = (event) => {
-        const prop = $(event.target).attr('data-js-css-value');
+        const prop = $(event.target).attr('data-js-css-value') || $(event.target).attr('data-js-css-unit');
         const valueValue = $('[data-js-css-value="' + prop + '"]').val();
         const valueUnit = $('[data-js-css-unit="' + prop + '"]').val();
         const propValue = valueValue + (valueUnit ? valueUnit : "");
@@ -283,7 +283,7 @@
             const $elem = $(elem);
             if ($elem.attr("type") == "text") {
                 $elem.val('');
-                reeturn;
+                return;
             }
             if ($elem.attr("type") == "color") {
                 $elem.val('#000000');
@@ -323,8 +323,8 @@
                 $('[data-js-css-unit="' + prop + '"]').val(parts[2]);
                 continue;
             }
-            console.warn('CSS property value is not recognized: ', prop, value);
-
+            console.warn('CSS property value is not recognized and deleted: ', prop, value);
+            delete(element.style[prop]);
         }
         $('[data-js-content="element-text"]').text(element.content.text);
         $('[data-js-content="element-sound"]').val(element.content.sound);
@@ -483,7 +483,7 @@
         mobx.autorun(
             () => render()
         );
-        
+
         // for (const key in $('body')[0]) {
         //     if(/^on/.test(key) && !/mouse/.test(key)) {
         //         const eventType = key.substr(2);
@@ -491,7 +491,7 @@
         //         target.addEventListener(eventType, e => { console.log(e); });
         //     }
         // }
-        
+
     });
 
 })(jQuery, _);

@@ -16,6 +16,7 @@
         <link rel="stylesheet" href="./src/css.css" />
         <script src="./src/PresentationData.js"></script>
         <script src="./src/js.js"></script>
+        <script src="./src/translate.js"></script>
     </head>
     <body>
 
@@ -32,7 +33,7 @@
         <div class="admin">
 
             <div class="admin-block" data-admin-block-id="general">
-                <div class="admin-block-header">
+                <div class="admin-block-header" data-translation-id="presentation-block-header">
                     Presentation
                 </div>
                 <div class="admin-block-content">
@@ -45,19 +46,19 @@
             </div>
 
             <div class="admin-block" data-admin-block-id="media">
-                <div class="admin-block-header">
+                <div class="admin-block-header" data-translation-id="media-block-header">
                     Media
                 </div>
                 <div class="admin-block-content">
                     <div class="admin-block-control-group admin-block-control-group-vertical">
-                        <label>Add sound</label>
+                        <label data-translation-id="add-sound">Add sound</label>
                         <form>
                             <input type="hidden" name="type" value="sound" />
                             <input type="file" name="file[]" data-js-action="media-upload" multiple="multiple" />
                         </form>
                     </div>
                     <div class="admin-block-control-group admin-block-control-group-vertical">
-                        <label>Add image</label>
+                        <label data-translation-id="add-image">Add image</label>
                         <form>
                             <input type="hidden" name="type" value="image" />
                             <input type="file" name="file[]" data-js-action="media-upload" multiple="multiple" />
@@ -68,7 +69,7 @@
 
             <div class="admin-block" data-admin-block-id="pages">
                 <div class="admin-block-header">
-                    Pages
+                    <span data-translation-id="pages-block-header">Pages</span>
                     &nbsp;
                     <span data-js-target="pages-summary"></span>
                 </div>
@@ -84,7 +85,7 @@
 
             <div class="admin-block" data-admin-block-id="elements">
                 <div class="admin-block-header">
-                    Elements
+                    <span data-translation-id="elements-block-header">Elements</span>
                     &nbsp;
                     <span data-js-target="elements-summary"></span>
                 </div>
@@ -99,36 +100,36 @@
             </div>
 
             <div class="admin-block" data-admin-block-id="content">
-                <div class="admin-block-header">
+                <div class="admin-block-header" data-translation-id="content-block-header">
                     Content
                 </div>
                 <div class="admin-block-content">
                     <div class="admin-block-control-group admin-block-control-group-vertical">
-                        <label>Text</label>
+                        <label data-translation-id="content-text">Text</label>
                         <textarea data-js-content="element-text"></textarea>
                     </div>
                     <div class="admin-block-control-group admin-block-control-group-vertical">
-                        <label>Sound</label>
+                        <label data-translation-id="content-sound">Sound</label>
                         <select data-js-content="element-sound"></select>
                     </div>
                     <div class="admin-block-control-group admin-block-control-group-vertical">
-                        <label>Image</label>
+                        <label data-translation-id="content-image">Image</label>
                         <select data-js-content="element-image"></select>
                     </div>
                 </div>
             </div>
 
             <div class="admin-block" data-admin-block-id="design">
-                <div class="admin-block-header">
+                <div class="admin-block-header"data-translation-id="design-block-header">
                     Design
                 </div>
                 <div class="admin-block-content">
                     <div class="admin-block-control-group">
-                        <label for="data-js-content-draggable">Draggable</label>
+                        <label for="data-js-content-draggable" data-translation-id="style-draggable">Draggable</label>
                         <input id="data-js-content-draggable" type="checkbox" data-js-behavior="draggable">
                     </div>
                     <div class="admin-block-control-group">
-                        <label>Left (%)</label>
+                        <label data-translation-id="css-prop-left">Left</label>
                         <input type="number" data-js-css-value="left" data-js-action="element-css-value">
                         <select data-js-css-unit="left" data-js-action="element-css-unit">
                             <option value="%">%</option>
@@ -136,7 +137,7 @@
                         </select>
                     </div>
                     <div class="admin-block-control-group">
-                        <label>Top (%)</label>
+                        <label data-translation-id="css-prop-top">Top</label>
                         <input type="number" data-js-css-value="top" data-js-action="element-css-value">
                         <select data-js-css-unit="top" data-js-action="element-css-unit">
                             <option value="%">%</option>
@@ -144,7 +145,7 @@
                         </select>
                     </div>
                     <div class="admin-block-control-group">
-                        <label>Width (%)</label>
+                        <label data-translation-id="css-prop-width">Width</label>
                         <input type="number" data-js-css-value="width" data-js-action="element-css-value">
                         <select data-js-css-unit="width" data-js-action="element-css-unit">
                             <option value="%">%</option>
@@ -152,7 +153,7 @@
                         </select>
                     </div>
                     <div class="admin-block-control-group">
-                        <label>Height (%)</label>
+                        <label data-translation-id="css-prop-height">Height</label>
                         <input type="number" data-js-css-value="height" data-js-action="element-css-value">
                         <select data-js-css-unit="height" data-js-action="element-css-unit">
                             <option value="%">%</option>
@@ -160,15 +161,15 @@
                         </select>
                     </div>
                     <div class="admin-block-control-group">
-                        <label>Color</label>
+                        <label data-translation-id="css-prop-color">Color</label>
                         <input type="color" data-js-css-value="color" data-js-action="element-css-value">
                     </div>
                     <div class="admin-block-control-group">
-                        <label>Background color</label>
+                        <label data-translation-id="css-prop-background-color">Background color</label>
                         <input type="color" data-js-css-value="background-color" data-js-action="element-css-value">
                     </div>
                     <div class="admin-block-control-group">
-                        <label>Border color</label>
+                        <label data-translation-id="css-prop-border-color">Border color</label>
                         <input type="color" data-js-css-value="border-color" data-js-action="element-css-value">
                     </div>
                 </div>
