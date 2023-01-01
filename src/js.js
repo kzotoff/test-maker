@@ -179,7 +179,7 @@
                 if (entry.filename == "presentation.json") {
                     const contentText = await entry.getData(new zip.TextWriter());
                     const content = JSON.parse(contentText);
-                    data.data = content;
+                    data.makeDataFrom(content);
                     return;
                 }
 
