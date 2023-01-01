@@ -10,7 +10,7 @@
         <script src="./lib/jquery-ui/jquery.ui.touch-punch-board.js"></script>
         <script src="./lib/lodash/lodash-full.js"></script>
         <script src="./lib/mobx/mobx.umd.production.min.js"></script>
-
+        <script src="./lib/zip/zip.js"></script>
 
         <link rel="stylesheet" href="./lib/jquery-ui/jquery-ui.min.css" />
         <link rel="stylesheet" href="./src/css.css" />
@@ -40,7 +40,8 @@
                     <div class="admin-block-control-group">
                         <button class="admin-control-icon-button fa-solid fa-file" data-js-action="presentation-reset"></button>
                         <button class="admin-control-icon-button fa-solid fa-floppy-disk" data-js-action="presentation-export"></button>
-                        <button class="admin-control-icon-button fa-solid fa-folder-open" data-js-action="presentation-export"></button>
+                        <button class="admin-control-icon-button fa-solid fa-folder-open" data-js-action="presentation-import-show"></button>
+                        <input type="file" data-js-action="presentation-import" />
                     </div>
                 </div>
             </div>

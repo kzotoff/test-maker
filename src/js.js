@@ -11,6 +11,7 @@
 
     const state = mobx.observable({
         editMode: true,
+        importInputVisible: false,
         playingPageSound: false,
         currentPage: 0,
         currentElement: 0,
@@ -59,23 +60,171 @@
     };
 
     //
-    //
+    // start over, import and export
     //
 
-    const dataReset = () => {
-        if (!confirm('delete everything and start over?')) { return; }
-        if (!confirm('sure?')) { return; }
-        if (!confirm('absolutely?')) { return; }
+    const dataReset = async (noConfirm) => {
+
+        if (!(noConfirm === true)) {
+            if (!confirm('delete everything and start over?')) { return false; }
+            if (!confirm('sure?')) { return false; }
+            if (!confirm('absolutely?')) { return false; }
+        }
         data.reset();
+
+
+        await Promise.resolve($.ajax({
+            url: './api/clear.php',
+            type: 'POST',
+            contentType: false,
+            success: (result) => {
+                console.log('clear ok');
+            },
+        }));
+        return true;
     };
 
-    const dataExport = () => {
+    const dataExport = async () => {
 
+        const zipWriter = new zip.ZipWriter(new zip.BlobWriter("application/zip"));
+
+        // content JSON
+        const presentation = JSON.stringify(mobx.toJS(data.data));
+        await zipWriter.add('presentation.json', new zip.TextReader(presentation));
+
+        // media
+        const appendMedia = async (mediaType) => {
+            const url = `./api/list.php?type=${mediaType}`;
+            const mediaList = await Promise.resolve($.get(url));
+            await Promise.all(
+                JSON.parse(mediaList).map(
+                    filename => zipWriter.add(filename, new zip.HttpReader(`./media/${mediaType}/${filename}`))
+                )
+            );
+        };
+
+        await appendMedia("image");
+        await appendMedia("sound");
+
+        // well, get it
+        const zipBlob = await zipWriter.close();
+        $("<a>")
+            .attr("download", "hello.zip")
+            .attr("href", URL.createObjectURL(zipBlob))
+            .html('download')
+            .get(0)
+                .click();
     };
 
-    const dataImport = () => {
-
+    const dataImportShow = (value) => {
+        if (typeof value !== "undefined") {
+            state.importInputVisible = value;
+            return;
+        }
+        state.importInputVisible = !state.importInputVisible;
     };
+
+    const displayImportInput = () => {
+        $('[data-js-action="presentation-import"]').css("display", state.importInputVisible ? "block" : "none")
+    };
+
+    const isImage = (zippedFileEntry) => {
+
+        const dotPosition = zippedFileEntry.filename.lastIndexOf('.');
+        const ext = dotPosition >= 0 ? zippedFileEntry.filename.substr(dotPosition + 1) : "";
+
+        if (["jpg", "jpeg", "png", "webm", "bmp"].includes(ext)) {
+            return true;
+        }
+
+        return false;
+    };
+
+    const isSound = (zippedFileEntry) => {
+
+        const dotPosition = zippedFileEntry.filename.lastIndexOf('.');
+        const ext = dotPosition >= 0 ? zippedFileEntry.filename.substr(dotPosition + 1) : "";
+
+        if (["mp3", "ogg"].includes(ext)) {
+            return true;
+        }
+
+        return false;
+    };
+
+    const dataImport = async () => {
+
+        console.warn('fill selectors after import');
+
+        await dataReset(true);
+
+        const zipFileBlob = $('[data-js-action="presentation-import"]')[0].files[0];
+        const zipFileReader = new zip.BlobReader(zipFileBlob);
+        const zipReader = new zip.ZipReader(zipFileReader);
+        const entries = await zipReader.getEntries();
+
+
+        // const mediaList = await Promise.resolve($.get(url));
+        // await Promise.all(
+        //     JSON.parse(mediaList).map(
+        //         filename => zipWriter.add(filename, new zip.HttpReader(`./media/${mediaType}/${filename}`))
+        //     )
+        // )
+
+        await Promise.all(
+            entries.map(async entry => {
+                console.log(`importing ${entry.filename}`);
+
+                // this special name
+                if (entry.filename == "presentation.json") {
+                    const contentText = await entry.getData(new zip.TextWriter());
+                    const content = JSON.parse(contentText);
+                    data.data = content;
+                    return;
+                }
+
+                // all others are being uploaded
+                const formData = new FormData();
+
+                if (isImage(entry)) {
+                    formData.append("type", "image");
+                } else if (isSound(entry)) {
+                    formData.append("type", "sound");
+                } else {
+                    console.warn(`unknown file type for ${entry.filename}`);
+                    return;
+                }
+
+                const blob = await entry.getData(new zip.BlobWriter());
+                formData.append("file[]", blob, entry.filename);
+
+                return Promise.resolve($.ajax({
+                    url: './api/upload.php',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    enctype: 'multipart/form-data',
+                    contentType: false,
+                    success: () => {
+                        console.log(`ok: ${entry.filename}`);
+                    },
+                }));
+            })
+        );
+
+        console.log('import completed');
+        $('[data-js-action="presentation-import"]').val(undefined);
+        dataImportShow(false);
+
+        fillSoundSelector();
+        fillImageSelector();
+        data.saveToStorage();
+        render();
+    };
+
+    //
+    //
+    //
 
     const mediaUpload = (event) => {
         const formElement = $(event.target).closest('form')[0];
@@ -199,7 +348,8 @@
 
             ['click', '.admin-block-header', doIfEditMode, switchAdminBlockVisible],
             ['click', '[data-js-action="presentation-export"]', doIfEditMode, dataExport],
-            ['click', '[data-js-action="presentation-import"]', doIfEditMode, dataImport],
+            ['click', '[data-js-action="presentation-import-show"]', doIfEditMode, dataImportShow],
+            ['change', '[data-js-action="presentation-import"]', doIfEditMode, dataImport],
             ['click', '[data-js-action="presentation-reset"]', doIfEditMode, dataReset],
             ['change', '[data-js-action="media-upload"]', doIfEditMode, mediaUpload],
 
@@ -301,6 +451,11 @@
         clearElementPropControls();
 
         const element = data.data.pages[state.currentPage].elements[state.currentElement];
+
+        if (!element) {
+            console.log('no elements');
+            return;
+        }
         if (!element.style) {
             console.warn('element has no style section, it is so strange');
             return;
@@ -326,7 +481,7 @@
             console.warn('CSS property value is not recognized and deleted: ', prop, value);
             delete(element.style[prop]);
         }
-        $('[data-js-content="element-text"]').text(element.content.text);
+        $('[data-js-content="element-text"]').val(element.content.text);
         $('[data-js-content="element-sound"]').val(element.content.sound);
         $('[data-js-content="element-image"]').val(element.content.image);
         $('[data-js-behavior="draggable"]').prop("checked", _.get(element, "behavior.draggable", false));
@@ -475,9 +630,15 @@
             }
         );
 
+        mobx.reaction(
+            () => { return state.importInputVisible; },
+            () => { displayImportInput(); }
+        )
+
         attachHandlers();
         fillSoundSelector();
         fillImageSelector();
+        displayImportInput();
         modeEditOn();
 
         mobx.autorun(
