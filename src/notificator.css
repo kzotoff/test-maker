@@ -1,0 +1,27 @@
+.notifications {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    border: none;
+    width: 320px;
+}
+
+.notifications .notification {
+    margin: 8px 4px;
+    border: 1px rgba(0, 0, 0, 0.36) solid;
+    border-radius: 4px;
+    color: rgba(0, 0, 0, 0.64);
+    padding: 8px 6px;
+}
+
+.notifications .notification[data-notification-level="info"] {
+    background-color: rgb(119, 221, 158);
+}
+
+.notifications .notification[data-notification-level="warning"] {
+    background-color: rgb(214, 216, 120);
+}
+
+.notifications .notification[data-notification-level="error"] {
+    background-color: rgb(229, 157, 157);
+}

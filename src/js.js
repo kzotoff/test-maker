@@ -4,8 +4,10 @@
 
     console.log('yeah we are starting');
 
+    const translator = new Translator();
     const data = new PresentationData();
     const audio = new Audio();
+    const notificator = new Notificator(".notifications", "LANG_PACK");
 
     data.loadFromStorage();
 
@@ -72,12 +74,14 @@
         }
         data.reset();
 
-
         await Promise.resolve($.ajax({
             url: './api/clear.php',
             type: 'POST',
             contentType: false,
             success: (result) => {
+                fillSoundSelector();
+                fillImageSelector();
+                notificator.info("media storage cleared");
                 console.log('clear ok');
             },
         }));
@@ -154,8 +158,6 @@
 
     const dataImport = async () => {
 
-        console.warn('fill selectors after import');
-
         await dataReset(true);
 
         const zipFileBlob = $('[data-js-action="presentation-import"]')[0].files[0];
@@ -212,6 +214,7 @@
             })
         );
 
+        notificator.info(translator.forCode("import-ok") + entry.filename);
         console.log('import completed');
         $('[data-js-action="presentation-import"]').val(undefined);
         dataImportShow(false);
@@ -237,6 +240,7 @@
             enctype: 'multipart/form-data',
             contentType: false,
             success: (result) => {
+                notificator.info(translator.forCode("files-uploaded-ok"));
                 fillSoundSelector();
                 fillImageSelector();
             }
@@ -302,13 +306,32 @@
         element.content.image = $(event.target).val();
     };
 
+    /**
+     * well, set element style based on event
+     *
+     */
     const elementSetStyle = (event) => {
-        const prop = $(event.target).attr('data-js-css-value') || $(event.target).attr('data-js-css-unit');
-        const valueValue = $('[data-js-css-value="' + prop + '"]').val();
-        const valueUnit = $('[data-js-css-unit="' + prop + '"]').val();
-        const propValue = valueValue + (valueUnit ? valueUnit : "");
+
         const element = data.data.pages[state.currentPage].elements[state.currentElement];
-        element.style[prop] = propValue;
+
+        const prop = $(event.target).attr('data-js-css-prop') || $(event.target).attr('data-js-css-unit');
+        const propControl = $('[data-js-css-prop="' + prop + '"]');
+
+        // checkboxes contain both prop and value
+        if (propControl.attr("type") == "checkbox") {
+            let propValue = propControl.attr('data-js-css-value');
+
+            if (propControl[0].checked) {
+                element.style[prop] = propValue;
+            } else {
+                delete(element.style[prop]);
+            }
+        } else {
+            let propUnit = $('[data-js-css-unit="' + prop + '"]').val();
+            let propValue = propControl.val() + (propUnit ? propUnit : "");
+            element.style[prop] = propValue;
+        }
+
     };
 
     const elementSetDraggable = (event) => {
@@ -370,6 +393,7 @@
             ['change', '[data-js-content="element-text"]', doIfEditMode, elementSetText],
             ['change', '[data-js-content="element-sound"]', doIfEditMode, elementSetSound],
             ['change', '[data-js-content="element-image"]', doIfEditMode, elementSetImage],
+            ['change', '[data-js-action="element-css-toggle"]', doIfEditMode, elementSetStyle],
             ['change', '[data-js-action="element-css-value"]', doIfEditMode, elementSetStyle],
             ['change', '[data-js-action="element-css-unit"]', doIfEditMode, elementSetStyle],
             ['change', '[data-js-behavior="draggable"]', doIfEditMode, elementSetDraggable],
@@ -429,7 +453,7 @@
     };
 
     const clearElementPropControls = () => {
-        $('[data-js-css-value]').each((index, elem) => {
+        $('[data-js-css-prop]').each((index, elem) => {
             const $elem = $(elem);
             if ($elem.attr("type") == "text") {
                 $elem.val('');
@@ -463,24 +487,38 @@
 
         for (let prop in element.style) {
             const value = element.style[prop];
+            const styleControl = $('[data-js-css-prop="' + prop + '"]');
+
+            if (!styleControl) {
+                console.warn('CSS property value is not recognized and will be deleted: ', prop, value);
+                delete(element.style[prop]);
+                continue;
+            }
 
             // check if it is color
             if (value.match(/#[0-9a-f]{3}([0-9a-f]{3})?/)) {
                 // console.log(prop, 'color', value);
-                $('[data-js-css-value="' + prop + '"]').val(value);
+                styleControl.val(value);
                 continue;
             }
+
             // first type: digital + optional unit
             const parts = /(\d+)([^\d]+)?/.exec(value);
             if (parts) {
                 // console.log(prop, 'dimension', value);
-                $('[data-js-css-value="' + prop + '"]').val(parts[1]);
+                styleControl.val(parts[1]);
                 $('[data-js-css-unit="' + prop + '"]').val(parts[2]);
                 continue;
             }
-            console.warn('CSS property value is not recognized and deleted: ', prop, value);
-            delete(element.style[prop]);
+
+            // second type: direct value (e.g., "bold"), there should be checkbox (later may be select)
+            if (styleControl.attr("type") == "checkbox") {
+                styleControl[0].checked = true;
+            } else {
+                console.error("should implement support for something other than checkbox");
+            }
         }
+
         $('[data-js-content="element-text"]').val(element.content.text);
         $('[data-js-content="element-sound"]').val(element.content.sound);
         $('[data-js-content="element-image"]').val(element.content.image);
@@ -525,8 +563,8 @@
                     const newLeft = calcPosition($offset.left, $('.content').outerWidth(), $('[data-js-css-unit="left"]').val());
                     const newTop = calcPosition($offset.top, $('.content').outerHeight(), $('[data-js-css-unit="top"]').val());
 
-                    $('[data-js-css-value="left"]').val(newLeft).change();
-                    $('[data-js-css-value="top"]').val(newTop).change();
+                    $('[data-js-css-prop="left"]').val(newLeft).change();
+                    $('[data-js-css-prop="top"]').val(newTop).change();
                 }
             });
 
@@ -640,6 +678,7 @@
         fillImageSelector();
         displayImportInput();
         modeEditOn();
+        translator.applyAuto();
 
         mobx.autorun(
             () => render()

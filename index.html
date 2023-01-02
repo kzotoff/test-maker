@@ -14,13 +14,18 @@
 
         <link rel="stylesheet" href="./lib/jquery-ui/jquery-ui.min.css" />
         <link rel="stylesheet" href="./src/css.css" />
+        <link rel="stylesheet" href="./src/notificator.css" />
         <script src="./src/PresentationData.js"></script>
+        <script src="./src/Translator.js"></script>
+        <script src="./src/Notificator.js"></script>
         <script src="./src/js.js"></script>
-        <script src="./src/translate.js"></script>
     </head>
     <body>
 
         <div class="content">
+        </div>
+
+        <div class="notifications">
         </div>
 
         <div class="audio-overlay">
@@ -131,7 +136,7 @@
                     </div>
                     <div class="admin-block-control-group">
                         <label data-translation-id="css-prop-left">Left</label>
-                        <input type="number" data-js-css-value="left" data-js-action="element-css-value">
+                        <input type="number" data-js-css-prop="left" data-js-action="element-css-value">
                         <select data-js-css-unit="left" data-js-action="element-css-unit">
                             <option value="%">%</option>
                             <option value="px">px</option>
@@ -139,7 +144,7 @@
                     </div>
                     <div class="admin-block-control-group">
                         <label data-translation-id="css-prop-top">Top</label>
-                        <input type="number" data-js-css-value="top" data-js-action="element-css-value">
+                        <input type="number" data-js-css-prop="top" data-js-action="element-css-value">
                         <select data-js-css-unit="top" data-js-action="element-css-unit">
                             <option value="%">%</option>
                             <option value="px">px</option>
@@ -147,7 +152,7 @@
                     </div>
                     <div class="admin-block-control-group">
                         <label data-translation-id="css-prop-width">Width</label>
-                        <input type="number" data-js-css-value="width" data-js-action="element-css-value">
+                        <input type="number" data-js-css-prop="width" data-js-action="element-css-value">
                         <select data-js-css-unit="width" data-js-action="element-css-unit">
                             <option value="%">%</option>
                             <option value="px">px</option>
@@ -155,23 +160,36 @@
                     </div>
                     <div class="admin-block-control-group">
                         <label data-translation-id="css-prop-height">Height</label>
-                        <input type="number" data-js-css-value="height" data-js-action="element-css-value">
+                        <input type="number" data-js-css-prop="height" data-js-action="element-css-value">
                         <select data-js-css-unit="height" data-js-action="element-css-unit">
                             <option value="%">%</option>
                             <option value="px">px</option>
                         </select>
                     </div>
                     <div class="admin-block-control-group">
+                        <label data-translation-id="css-prop-font-size">Font size</label>
+                        <input type="number" data-js-css-prop="font-size" data-js-action="element-css-value">
+                        <select data-js-css-unit="font-size" data-js-action="element-css-unit">
+                            <option value="px">px</option>
+                        </select>
+                    </div>
+
+                    <div class="admin-block-control-group">
+                        <label for="data-js-style-bold" data-translation-id="style-font-bold">Bold font</label>
+                        <input id="data-js-style-bold" type="checkbox" data-js-action="element-css-toggle" data-js-css-prop="font-weight" data-js-css-value="bold" />
+                    </div>
+
+                    <div class="admin-block-control-group">
                         <label data-translation-id="css-prop-color">Color</label>
-                        <input type="color" data-js-css-value="color" data-js-action="element-css-value">
+                        <input type="color" data-js-css-prop="color" data-js-action="element-css-value">
                     </div>
                     <div class="admin-block-control-group">
                         <label data-translation-id="css-prop-background-color">Background color</label>
-                        <input type="color" data-js-css-value="background-color" data-js-action="element-css-value">
+                        <input type="color" data-js-css-prop="background-color" data-js-action="element-css-value">
                     </div>
                     <div class="admin-block-control-group">
                         <label data-translation-id="css-prop-border-color">Border color</label>
-                        <input type="color" data-js-css-value="border-color" data-js-action="element-css-value">
+                        <input type="color" data-js-css-prop="border-color" data-js-action="element-css-value">
                     </div>
                 </div>
             </div>

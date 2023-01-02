@@ -1,6 +1,8 @@
-;(function ($) {
+"use strict";
 
-    const translation = {
+const Translator = function() {
+
+    this.translations = {
         "en": {
             "presentation-block-header": "Presentation",
             "media-block-header": "Media",
@@ -14,13 +16,17 @@
             "content-image": "Image",
             "design-block-header": "Design",
             "style-draggable": "Draggable",
+            "style-font-bold": "Bold",
             "css-prop-left": "Left",
             "css-prop-top": "Top",
             "css-prop-width": "Width",
             "css-prop-height": "Height",
             "css-prop-color": "Color",
+            "css-prop-font-size": "Font size",
             "css-prop-background-color": "Background color",
             "css-prop-border-color": "Border color",
+            "files-uploaded-ok": "Files uploaded successfully",
+            "import-ok": "import successful",
         },
 
         "ru": {
@@ -36,42 +42,53 @@
             "content-image": "Изображение",
             "design-block-header": "Стиль",
             "style-draggable": "Можно двигать",
+            "style-font-bold": "Жирный",
             "css-prop-left": "По горизонтали",
             "css-prop-top": "По вертикали",
             "css-prop-width": "Ширина",
             "css-prop-height": "Высота",
             "css-prop-color": "Цвет текста",
+            "css-prop-font-size": "Размер текста",
             "css-prop-background-color": "Цвет фона",
             "css-prop-border-color": "Цвет рамки",
+            "files-uploaded-ok": "Файлы загружены",
+            "import-ok": "Презантация загружена",
         },
     };
 
-    const useTranslation = () => {
+    this.getLangPack = (forceLang) => {
         return (
-            translation[localStorage.getItem("forceLang")]
+            this.translations[forceLang]
             ||
-            translation[navigator.language]
+            this.translations[navigator.language]
             ||
-            translation[navigator.language.substr(0, 2)]
+            this.translations[navigator.language.substr(0, 2)]
             ||
-            translation["en"]
-            ||
-            translation[Object.keys(translation)[0]]
+            this.translations[Object.keys(this.translations)[0]]
         );
     };
 
-    $(() => {
+    this.forCode = (code) => {
+        return (
+            this.activeLangpack[code]
+            ||
+            this.translations[Object.keys(this.translations)[0]][code]
+        );
+    };
 
-        const textData = useTranslation();
-        $('[data-translation-id]').each((index, elem) => {
-            const translatedText = textData[elem.getAttribute('data-translation-id')];
+    this.activeLangpack = this.getLangPack(localStorage.getItem("forceLang"));
+    console.log(`translator ready. set localStorage:forceLang to override. locales supported: ${Object.keys(this.translations).join(',')}`);
+
+    this.applyAuto = () => {
+        document.querySelectorAll('[data-translation-id]').forEach((elem) => {
+            const code = elem.getAttribute('data-translation-id');
+            const translatedText = this.forCode(code);
             if (translatedText) {
                 elem.innerText = translatedText;
             } else {
                 console.warn('no translation for ' + elem.getAttribute('data-translation-id'))
             }
         });
-        console.log('translator activated. set localStorage:forceLang to override. locales supported: ' + Object.keys(translation).join(','));
-    });
+    };
 
-})(jQuery);
+}
