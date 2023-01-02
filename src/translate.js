@@ -70,7 +70,8 @@
             } else {
                 console.warn('no translation for ' + elem.getAttribute('data-translation-id'))
             }
-        })
+        });
+        console.log('translator activated. set localStorage:forceLang to override. locales supported: ' + Object.keys(translation).join(','));
     });
 
 })(jQuery);
