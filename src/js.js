@@ -469,6 +469,7 @@
         $('[data-js-content="element-sound"]').val(null);
         $('[data-js-content="element-image"]').val(null);
         $('[data-js-behavior="draggable"]').prop("checked", false);
+        $('[data-js-action="element-css-toggle"]').prop("checked", false);
     };
 
     const fillCssFields = () => {
