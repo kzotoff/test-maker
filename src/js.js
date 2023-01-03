@@ -392,7 +392,7 @@
             // design and content
             ['change', '[data-js-content="element-text"]', doIfEditMode, elementSetText],
             ['change', '[data-js-content="element-sound"]', doIfEditMode, elementSetSound],
-            ['change', '[data-js-content="element-image"]', doIfEditMode, elementSetImage],
+            ['change', '[data-js-action="element-image"]', doIfEditMode, elementSetImage],
             ['change', '[data-js-action="element-css-toggle"]', doIfEditMode, elementSetStyle],
             ['change', '[data-js-action="element-css-value"]', doIfEditMode, elementSetStyle],
             ['change', '[data-js-action="element-css-unit"]', doIfEditMode, elementSetStyle],
@@ -467,7 +467,7 @@
 
         $('[data-js-content="element-text"]').text("");
         $('[data-js-content="element-sound"]').val(null);
-        $('[data-js-content="element-image"]').val(null);
+        $('[data-js-action="element-image"]').val(null);
         $('[data-js-behavior="draggable"]').prop("checked", false);
         $('[data-js-action="element-css-toggle"]').prop("checked", false);
     };
@@ -522,7 +522,7 @@
 
         $('[data-js-content="element-text"]').val(element.content.text);
         $('[data-js-content="element-sound"]').val(element.content.sound);
-        $('[data-js-content="element-image"]').val(element.content.image);
+        $('[data-js-action="element-image"]').val(element.content.image);
         $('[data-js-behavior="draggable"]').prop("checked", _.get(element, "behavior.draggable", false));
     };
 
@@ -625,6 +625,7 @@
                                 .text(filename)
                         )
                     });
+                    render(); // for image and sound selectors to show actual data
                 } catch (e) {
                     console.warn('something went wrong while loading list for type "' + type + '"', e);
                 }

@@ -27,7 +27,9 @@ const Translator = function() {
             "css-prop-background-color": "Background color",
             "css-prop-border-color": "Border color",
             "files-uploaded-ok": "Files uploaded successfully",
-            "import-ok": "import successful",
+            "import-ok": "Import successful",
+            "page-properties-block-header": "Page properties",
+            "page-background-image": "Background image",
         },
 
         "ru": {
@@ -55,6 +57,8 @@ const Translator = function() {
             "css-prop-border-color": "Цвет рамки",
             "files-uploaded-ok": "Файлы загружены",
             "import-ok": "Презантация загружена",
+            "page-properties-block-header": "Параметры слайда",
+            "page-background-image": "Фоновое изображение",
         },
     };
 
