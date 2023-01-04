@@ -110,6 +110,8 @@ html {
     border: 1px var(--control-border-color) solid;
     border-radius: 4px;
     margin-bottom: 8px;
+    background-color: white;
+    user-select: none;
 }
 
 .admin-block-header {

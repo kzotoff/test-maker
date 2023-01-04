@@ -268,6 +268,10 @@
         state.currentPage = newCurrentPage;
     };
 
+    const pageBackground = (event) => {
+        data.data.pages[state.currentPage].metadata.backgroundImage = event.target.value;
+    };
+
     const elementSelect = (event) => {
         state.currentElement = parseInt($(event.target).attr('data-js-element-index'));
     };
@@ -381,6 +385,7 @@
             ['click', '[data-js-action="page-delete"]', doIfEditMode, pageDelete],
             ['click', '[data-js-action="page-prev"]', doIfEditMode, pagePrev],
             ['click', '[data-js-action="page-next"]', doIfEditMode, pageNext],
+            ['click', '[data-js-action="page-background-image"]', doIfEditMode, pageBackground],
 
             // elements
             ['mousedown', '.content [data-js-element-index]', doIfEditMode, elementSelect],
@@ -589,6 +594,17 @@
 
     };
 
+    const renderPage = (targetSelector, pageContent) => {
+        const $container = $(targetSelector);
+        const metadata = pageContent.metadata;
+
+        if (metadata.backgroundImage) {
+            $container.css('background-image', 'url(./media/image/' + metadata.backgroundImage + ')');
+        } else {
+            $container.css('background-image', '');
+        }
+    };
+
     const renderElements = (targetSelector, pageContent) => {
         const $content = $(targetSelector);
         $content.empty();
@@ -648,6 +664,7 @@
         console.log('render');
         renderPagesSummary();
         renderElementsSummary();
+        renderPage(".content", data.data.pages[state.currentPage]);
         renderElements(".content", data.data.pages[state.currentPage]);
         updateAdminBlockState();
         fillCssFields();
