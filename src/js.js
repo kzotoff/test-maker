@@ -214,7 +214,7 @@
             })
         );
 
-        notificator.info(translator.forCode("import-ok") + entry.filename);
+        notificator.info(translator.forCode("import-ok"));
         console.log('import completed');
         $('[data-js-action="presentation-import"]').val(undefined);
         dataImportShow(false);
