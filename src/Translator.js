@@ -30,6 +30,7 @@ const Translator = function() {
             "import-ok": "Import successful",
             "page-properties-block-header": "Page properties",
             "page-background-image": "Background image",
+            "media-storage-cleared": "Media storage cleared",
         },
 
         "ru": {
@@ -56,9 +57,10 @@ const Translator = function() {
             "css-prop-background-color": "Цвет фона",
             "css-prop-border-color": "Цвет рамки",
             "files-uploaded-ok": "Файлы загружены",
-            "import-ok": "Презантация загружена",
+            "import-ok": "Презентация загружена",
             "page-properties-block-header": "Параметры слайда",
             "page-background-image": "Фоновое изображение",
+            "media-storage-cleared": "Хранилище файлов очищено",
         },
     };
 

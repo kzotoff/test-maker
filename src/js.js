@@ -81,7 +81,7 @@
             success: (result) => {
                 fillSoundSelector();
                 fillImageSelector();
-                notificator.info("media storage cleared");
+                notificator.info(translator.forCode("media-storage-cleared"));
                 console.log('clear ok');
             },
         }));
