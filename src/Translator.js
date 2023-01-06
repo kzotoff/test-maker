@@ -31,6 +31,7 @@ const Translator = function() {
             "page-properties-block-header": "Page properties",
             "page-background-image": "Background image",
             "media-storage-cleared": "Media storage cleared",
+            "new-element-text": "Hello, world!",
         },
 
         "ru": {
@@ -61,6 +62,7 @@ const Translator = function() {
             "page-properties-block-header": "Параметры слайда",
             "page-background-image": "Фоновое изображение",
             "media-storage-cleared": "Хранилище файлов очищено",
+            "new-element-text": "Привет!",
         },
     };
 

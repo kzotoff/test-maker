@@ -25,7 +25,7 @@ const PresentationData = function(options) {
     this.newElement = () => {
         return {
             "content": {
-                "text": "hello, world!",
+                "text": options.defaultText || "Hello, world!",
             },
             "behavior": {
                 "draggable": true,
@@ -33,9 +33,9 @@ const PresentationData = function(options) {
             "style": {
                 "left": "45%",
                 "top": "45%",
-                "width": "200px",
+                "width": "10%",
                 "height": "50px",
-                "background-color": "#44ff22",
+                "background-color": "#aaffaa",
             },
         };
 

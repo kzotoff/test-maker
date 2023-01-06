@@ -162,7 +162,8 @@ html {
     cursor: pointer;
     min-width: 34px;
 }
-.admin-control-icon-button:hover {
+.admin-control-icon-button:hover,
+.file-input-customizer:hover .admin-control-icon-button {
     background-color: var(--control-background-color-hover);
 }
 
@@ -201,7 +202,13 @@ html .file-input-customizer > label {
     opacity: 0;
 }
 
-
+.file-input-for-import * {
+    cursor: cell !important;
+}
+.file-input-for-import .admin-control-icon-button {
+    cursor: pointer;
+    margin: -5px;
+}
 
 .admin-block-control-group:not(:last-child) {
     margin-bottom: 8px;

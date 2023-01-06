@@ -45,8 +45,15 @@
                     <div class="admin-block-control-group">
                         <button class="admin-control-icon-button fa-solid fa-file" data-js-action="presentation-reset"></button>
                         <button class="admin-control-icon-button fa-solid fa-floppy-disk" data-js-action="presentation-export"></button>
-                        <button class="admin-control-icon-button fa-solid fa-folder-open" data-js-action="presentation-import-show"></button>
-                        <input type="file" data-js-action="presentation-import" />
+
+                        <div class="file-input-customizer file-input-for-import">
+                            <label>
+                                <button class="admin-control-icon-button fa-solid fa-folder-open"></button>
+                            </label>
+                            <form>
+                                <input type="file" data-js-action="presentation-import" />
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

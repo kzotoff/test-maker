@@ -5,7 +5,9 @@
     console.log('yeah we are starting');
 
     const translator = new Translator();
-    const data = new PresentationData();
+    const data = new PresentationData({
+        defaultText: translator.forCode("new-element-text"),
+    });
     const audio = new Audio();
     const notificator = new Notificator(".notifications", "LANG_PACK");
 
@@ -13,7 +15,6 @@
 
     const state = mobx.observable({
         editMode: true,
-        importInputVisible: false,
         playingPageSound: false,
         currentPage: 0,
         currentElement: 0,
@@ -21,7 +22,7 @@
         // block names corresponing to data-admin-block-id attribue
         adminBlocksShown: {
             "general": true,
-            "media": false,
+            "media": true,
             "pages": true,
             "elements": true,
             "content": true,
@@ -39,15 +40,24 @@
     };
 
     const modeEditOn = () => {
-        $('html').removeClass('mode-play').addClass('mode-edit');
         state.editMode = true;
     };
 
     const modeEditOff = () => {
-        $('html').removeClass('mode-edit').addClass('mode-play');
         state.editMode = false;
-        render();
     };
+
+    const applyEditMode = () => {
+        if (state.editMode) {
+            $('html').removeClass('mode-play').addClass('mode-edit');
+        } else {
+            $('html').removeClass('mode-edit').addClass('mode-play');
+        }
+    };
+
+    //
+    //
+    //
 
     const audioPlay = (url) => {
         audio.pause();
@@ -126,10 +136,6 @@
             return;
         }
         state.importInputVisible = !state.importInputVisible;
-    };
-
-    const displayImportInput = () => {
-        $('[data-js-action="presentation-import"]').css("display", state.importInputVisible ? "block" : "none")
     };
 
     const isImage = (zippedFileEntry) => {
@@ -269,7 +275,11 @@
     };
 
     const pageBackground = (event) => {
+        if (!data.data.pages[state.currentPage]) {
+            return;
+        }
         data.data.pages[state.currentPage].metadata.backgroundImage = event.target.value;
+
     };
 
     const elementSelect = (event) => {
@@ -311,7 +321,7 @@
     };
 
     /**
-     * well, set element style based on event
+     * well, set element style based on event (e.g., changing styling control value)
      *
      */
     const elementSetStyle = (event) => {
@@ -375,7 +385,6 @@
 
             ['click', '.admin-block-header', doIfEditMode, switchAdminBlockVisible],
             ['click', '[data-js-action="presentation-export"]', doIfEditMode, dataExport],
-            ['click', '[data-js-action="presentation-import-show"]', doIfEditMode, dataImportShow],
             ['change', '[data-js-action="presentation-import"]', doIfEditMode, dataImport],
             ['click', '[data-js-action="presentation-reset"]', doIfEditMode, dataReset],
             ['change', '[data-js-action="media-upload"]', doIfEditMode, mediaUpload],
@@ -457,6 +466,17 @@
         }
     };
 
+    const fillPagePropControls = () => {
+        $('[data-js-action="page-background-image"]').val("");
+
+        const pageData = data.data.pages[state.currentPage];
+
+        if (pageData.metadata.backgroundImage) {
+            $('[data-js-action="page-background-image"]').val(pageData.metadata.backgroundImage);
+        }
+
+    };
+
     const clearElementPropControls = () => {
         $('[data-js-css-prop]').each((index, elem) => {
             const $elem = $(elem);
@@ -471,8 +491,8 @@
         });
 
         $('[data-js-content="element-text"]').text("");
-        $('[data-js-content="element-sound"]').val(null);
-        $('[data-js-action="element-image"]').val(null);
+        $('[data-js-content="element-sound"]').val("");
+        $('[data-js-action="element-image"]').val("");
         $('[data-js-behavior="draggable"]').prop("checked", false);
         $('[data-js-action="element-css-toggle"]').prop("checked", false);
     };
@@ -595,6 +615,12 @@
     };
 
     const renderPage = (targetSelector, pageContent) => {
+
+        if (!pageContent) {
+            console.log("no page content provided, seems no pages at all")
+            return;
+        }
+
         const $container = $(targetSelector);
         const metadata = pageContent.metadata;
 
@@ -606,6 +632,12 @@
     };
 
     const renderElements = (targetSelector, pageContent) => {
+
+        if (!pageContent) {
+            console.log("no page content provided, seems no pages at all")
+            return;
+        }
+
         const $content = $(targetSelector);
         $content.empty();
         pageContent.elements.forEach((elem, index) => {
@@ -631,7 +663,7 @@
                     $select.append(
                         $("<option>")
                             .attr("value", "")
-                            .text('-')
+                            .text("-")
                     )
 
                     list.forEach((filename) => {
@@ -668,6 +700,7 @@
         renderElements(".content", data.data.pages[state.currentPage]);
         updateAdminBlockState();
         fillCssFields();
+        fillPagePropControls();
     }
 
     //
@@ -688,15 +721,14 @@
         );
 
         mobx.reaction(
-            () => { return state.importInputVisible; },
-            () => { displayImportInput(); }
+            () => { return state.editMode; },
+            () => { applyEditMode(); }
         )
 
+        applyEditMode();
         attachHandlers();
         fillSoundSelector();
         fillImageSelector();
-        displayImportInput();
-        modeEditOn();
         translator.applyAuto();
 
         mobx.autorun(
