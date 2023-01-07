@@ -110,7 +110,7 @@ const PresentationData = function(options) {
         _.set(
             this.data.pages[pageIndex].elements[elementIndex],
             "behavior.draggable",
-            true
+            newValue
         );
     };
 

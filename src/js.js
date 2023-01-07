@@ -587,7 +587,7 @@
 
     const renderElement = (elem, index) => {
         const $div = $("<div>")
-            .attr('data-id', (new Date()).toString())
+            .attr('data-id', index + "-" + new Date().getTime())
             .addClass('element')
             .addClass('element-default')
             .attr('data-js-element-index', index)
@@ -603,7 +603,11 @@
             }
         }
 
-        if (_.get(elem, "behavior.draggable")) {
+        if (
+            _.get(elem, "behavior.draggable")
+            ||
+            state.modes.edit // it is much simpler to edit with dragging
+        ) {
             $div.draggable({
                 stop: () => {
                     const $offset = $div.offset();

@@ -46,6 +46,7 @@ html {
     background-size: cover;
     background-position: center;
     overflow: hidden;
+    user-select: none;
 }
 .element .element-sound-icon {
     position: absolute;

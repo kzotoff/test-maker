@@ -36,6 +36,7 @@ const Translator = function() {
             "start-menu-new": "Create",
             "start-menu-continue": "Continue edit",
             "start-menu-open": "Open",
+            "behavior-block-header": "Behavior",
         },
 
         "ru": {
@@ -71,6 +72,7 @@ const Translator = function() {
             "start-menu-new": "Создать",
             "start-menu-continue": "Продолжить",
             "start-menu-open": "Открыть",
+            "behavior-block-header": "Поведение",
         },
     };
 
