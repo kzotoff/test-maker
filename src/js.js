@@ -2,20 +2,11 @@
 
 (($, _) => {
 
-    console.log('yeah we are starting');
-
-    const translator = new Translator();
-    const data = new PresentationData({
-        defaultText: translator.forCode("new-element-text"),
-    });
-    const audio = new Audio();
-    const notificator = new Notificator(".notifications", "LANG_PACK");
-
-    data.loadFromStorage();
-
-    const state = mobx.observable({
-        editMode: true,
-        playingPageSound: false,
+    const defaultState = {
+        modes: {
+            start: true,
+            edit: true,
+        },
         currentPage: 0,
         currentElement: 0,
 
@@ -28,7 +19,28 @@
             "content": true,
             "design": true,
         },
+    };
+
+    console.log('yeah we are starting');
+
+    const stateManager = new StateManager(defaultState);
+    stateManager.load();
+    const state = stateManager.attach();
+
+    mobx.reaction(
+        () => { return JSON.stringify(state); },
+        () => { stateManager.save(); }
+    );
+
+
+    const translator = new Translator();
+    const data = new PresentationData({
+        defaultText: translator.forCode("new-element-text"),
     });
+    const audio = new Audio();
+    const notificator = new Notificator(".notifications", "LANG_PACK");
+
+    data.loadFromStorage();
 
     //
     //
@@ -40,19 +52,26 @@
     };
 
     const modeEditOn = () => {
-        state.editMode = true;
+        state.modes.edit = true;
     };
 
     const modeEditOff = () => {
-        state.editMode = false;
+        state.modes.edit = false;
     };
 
-    const applyEditMode = () => {
-        if (state.editMode) {
-            $('html').removeClass('mode-play').addClass('mode-edit');
-        } else {
-            $('html').removeClass('mode-edit').addClass('mode-play');
-        }
+    const modeStartOn = () => {
+        state.modes.start = true;
+    };
+
+    const modeStartOff = () => {
+        state.modes.start = false;
+    };
+
+    const applyModes = () => {
+        const $html = $('html');
+        for (let mode in state.modes) {
+            $html.attr(`mode-${mode}`, state.modes[mode] ? "on" : "off");
+        };
     };
 
     //
@@ -78,9 +97,9 @@
     const dataReset = async (noConfirm) => {
 
         if (!(noConfirm === true)) {
-            if (!confirm('delete everything and start over?')) { return false; }
-            if (!confirm('sure?')) { return false; }
-            if (!confirm('absolutely?')) { return false; }
+            if (!confirm(translator.forCode("reset-confirmation"))) {
+                return false;
+            }
         }
         data.reset();
 
@@ -96,6 +115,15 @@
             },
         }));
         return true;
+    };
+
+    const dataNew = async () => {
+
+        const ok = await dataReset();
+        if (!ok) {
+            return;
+        }
+        modeStartOff();
     };
 
     const dataExport = async () => {
@@ -128,14 +156,6 @@
             .html('download')
             .get(0)
                 .click();
-    };
-
-    const dataImportShow = (value) => {
-        if (typeof value !== "undefined") {
-            state.importInputVisible = value;
-            return;
-        }
-        state.importInputVisible = !state.importInputVisible;
     };
 
     const isImage = (zippedFileEntry) => {
@@ -223,11 +243,11 @@
         notificator.info(translator.forCode("import-ok"));
         console.log('import completed');
         $('[data-js-action="presentation-import"]').val(undefined);
-        dataImportShow(false);
 
         fillSoundSelector();
         fillImageSelector();
         data.saveToStorage();
+        modeStartOff();
         render();
     };
 
@@ -370,8 +390,8 @@
 
     const attachHandlers = () => {
 
-        const doIfEditMode = () => state.editMode;
-        const doIfPlayMode = () => !state.editMode;
+        const doIfEditMode = () => state.modes.edit;
+        const doIfPlayMode = () => !state.modes.edit;
         const doAlways = () => true;
 
         const handlers = [
@@ -379,6 +399,9 @@
             // general
             ['click', '[data-js-action="mode-set-edit"]', doAlways, modeEditOn],
             ['click', '[data-js-action="mode-set-play"]', doAlways, modeEditOff],
+
+            ['click', '[data-js-action="presentation-create"]', doAlways, dataNew],
+            ['click', '[data-js-action="presentation-edit"]', doAlways, modeStartOff],
 
             ['click', '.element', doIfPlayMode, elementAudioPlay],
             ['click', '.audio-overlay', doIfPlayMode, elementAudioStop],
@@ -604,7 +627,7 @@
             $div.css('background-image', 'url(./media/image/' + elem.content.image + ')');
         }
 
-        if (state.editMode) {
+        if (state.modes.edit) {
             if (index === state.currentElement) {
                 $div.css("outline", "2px red dashed");
             }
@@ -721,11 +744,11 @@
         );
 
         mobx.reaction(
-            () => { return state.editMode; },
-            () => { applyEditMode(); }
+            () => { return JSON.stringify(state.modes); },
+            () => { applyModes(); }
         )
 
-        applyEditMode();
+        applyModes();
         attachHandlers();
         fillSoundSelector();
         fillImageSelector();

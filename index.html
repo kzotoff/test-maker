@@ -18,6 +18,7 @@
         <script src="./src/PresentationData.js"></script>
         <script src="./src/Translator.js"></script>
         <script src="./src/Notificator.js"></script>
+        <script src="./src/StateManager.js"></script>
         <script src="./src/js.js"></script>
     </head>
     <body>
@@ -26,6 +27,20 @@
         </div>
 
         <div class="notifications">
+        </div>
+
+        <div class="start-screen">
+            <div class="start-menu">
+                <div class="start-menu-item start-menu-item-hoverable" data-translation-id="start-menu-new" data-js-action="presentation-create">...</div>
+                <div class="start-menu-item start-menu-item-hoverable" data-translation-id="start-menu-continue" data-js-action="presentation-edit">...</div>
+
+                <div class="start-menu-item-hoverable file-input-customizer file-input-for-import">
+                    <label class="start-menu-item" data-translation-id="start-menu-open">...</label>
+                    <form>
+                        <input type="file" data-js-action="presentation-import" />
+                    </form>
+                </div>
+            </div>
         </div>
 
         <div class="audio-overlay">

@@ -32,6 +32,10 @@ const Translator = function() {
             "page-background-image": "Background image",
             "media-storage-cleared": "Media storage cleared",
             "new-element-text": "Hello, world!",
+            "reset-confirmation": "Everything will be cleared. Are you sure?",
+            "start-menu-new": "Create",
+            "start-menu-continue": "Continue edit",
+            "start-menu-open": "Open",
         },
 
         "ru": {
@@ -63,6 +67,10 @@ const Translator = function() {
             "page-background-image": "Фоновое изображение",
             "media-storage-cleared": "Хранилище файлов очищено",
             "new-element-text": "Привет!",
+            "reset-confirmation": "Всё содержимое будет удалено. Продолжить?",
+            "start-menu-new": "Создать",
+            "start-menu-continue": "Продолжить",
+            "start-menu-open": "Открыть",
         },
     };
 
