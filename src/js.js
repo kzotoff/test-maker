@@ -694,7 +694,7 @@
 
         const pageData = data.data.pages[state.currentPage];
 
-        if (pageData.metadata.backgroundImage) {
+        if (pageData && pageData.metadata.backgroundImage) {
             $('[data-js-action="page-background-image"]').val(pageData.metadata.backgroundImage);
         }
 

@@ -28,7 +28,7 @@ const PresentationData = function(options) {
                 "text": options.defaultText || "Hello, world!",
             },
             "behavior": {
-                "draggable": true,
+                "draggable": false,
             },
             "style": {
                 "left": "45%",
