@@ -81,9 +81,9 @@ const Translator = function() {
             "behavior-block-header": "Поведение",
             "behavior-id": "Код",
             "behavior-draggable": "Можно двигать",
-            "behavior-drag-target": "Корзина для",
+            "behavior-drag-target": "Цель для кодов",
             "behavior-arrow-start": "Начало стрелки",
-            "behavior-arrow-end": "Окончание стрелки для",
+            "behavior-arrow-end": "Окончание стрелки для кодов",
             "this-id-is-already-used": "Этот код занят, используйте другой",
         },
     };
