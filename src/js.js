@@ -87,6 +87,7 @@
     //
 
     const audioPlay = (url) => {
+        console.log('audio play');
         audio.pause();
         audio.src = url;
         audio.play();
@@ -94,6 +95,7 @@
     };
 
     const audioStop = () => {
+        console.log('audio stop');
         audio.pause();
         $('.audio-overlay').css('display', 'none');
     };
@@ -317,7 +319,8 @@
     };
 
     const elementSelect = (event) => {
-        state.currentElement = parseInt($(event.target).attr('data-js-element-index'));
+        console.log('select');
+        state.currentElement = parseInt($(event.currentTarget).attr('data-js-element-index'));
     };
 
     const elementNext = () => {
@@ -410,7 +413,7 @@
     };
 
     const elementAudioPlay = (event) => {
-        const elementIndex = parseInt($(event.target).attr('data-js-element-index'));
+        const elementIndex = parseInt($(event.target).closest('[data-js-element-index]').attr('data-js-element-index'));
         const soundSrc = data.data.pages[state.currentPage].elements[elementIndex].content.sound;
         console.log('sound source:', soundSrc);
         if (!soundSrc) {
@@ -441,6 +444,7 @@
             ['click', '[data-js-action="presentation-edit"]', doAlways, modeStartOff],
 
             ['click', '.element', doIfPlayMode, elementAudioPlay],
+            ['click', '.element-sound-icon', doIfEditMode, elementAudioPlay],
             ['click', '.audio-overlay', doIfPlayMode, elementAudioStop],
 
             ['click', '.admin-block-header', doIfEditMode, switchAdminBlockVisible],
