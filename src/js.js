@@ -393,6 +393,19 @@
         } else {
             propertyValue = $control.val();
         }
+
+        // id must be unique
+        if (behaviorProperty == "id") {
+            const exist = data.data.pages[state.currentPage].elements.find((elem, index) => {
+                return index != state.currentElement && elem.behavior.id == propertyValue;
+            });
+            if (exist) {
+                notificator.error(translator.forCode("this-id-is-already-used"));
+                $control.val("");
+                return;
+            }
+        }
+
         data.elementSetBehavior(state.currentPage, state.currentElement, behaviorProperty, propertyValue);
     };
 
@@ -654,6 +667,49 @@
             }
     };
 
+    const behaviorAddDraggable = ($div, elemData) => {
+        $div.draggable({
+            start: () => {
+                $div.removeClass("solved-correct")
+                $div.removeClass("solved-wrong")
+            },
+            stop: () => {
+                if (state.modes.edit) {
+                    const $offset = $div.offset();
+                    console.log('drag stop:', $offset);
+
+                    const newLeft = calcPosition($offset.left, $('.content').outerWidth(), $('[data-js-css-unit="left"]').val());
+                    const newTop = calcPosition($offset.top, $('.content').outerHeight(), $('[data-js-css-unit="top"]').val());
+
+                    $('[data-js-css-prop="left"]').val(newLeft).change();
+                    $('[data-js-css-prop="top"]').val(newTop).change();
+                }
+            }
+        });
+    };
+
+    const behaviorAddDroppable = ($div, elemData) => {
+        $div.droppable({
+            drop: (event, ui) => {
+                const droppedElem = ui.draggable[0];
+                const droppedElemIndex = droppedElem.getAttribute("data-js-element-index");
+                if (!droppedElemIndex) {
+                    console.warn("dropped item has no element index. was it from our universe?");
+                    return;
+                }
+                const droppedItemData = data.data.pages[state.currentPage].elements[droppedElemIndex]
+                const droppedElementId = droppedItemData.behavior.id;
+
+                const correctElements = _.get(elemData, "behavior.drag-target", "").split(/[^0-9]+/).filter(e => e);
+                if (correctElements.includes(droppedElementId)) {
+                    $(droppedElem).addClass("solved-correct");
+                } else {
+                    $(droppedElem).addClass("solved-wrong");
+                }
+            },
+        });
+    };
+
     const renderElement = (elem, index) => {
         const $div = $("<div>")
             .attr('data-id', index + "-" + new Date().getTime())
@@ -666,7 +722,7 @@
             $div.text(elem.content.text);
         }
 
-        if (elem.content.image) {
+        if (elem.content && elem.content.image) {
             $div.css('background-image', 'url(./media/image/' + elem.content.image + ')');
         }
 
@@ -691,24 +747,14 @@
             ||
             state.modes.edit // it is much simpler to edit with dragging
         ) {
-            $div.draggable({
-                stop: () => {
-                    if (state.modes.edit) {
-                        const $offset = $div.offset();
-                        console.log('drag stop:', $offset);
-
-                        const newLeft = calcPosition($offset.left, $('.content').outerWidth(), $('[data-js-css-unit="left"]').val());
-                        const newTop = calcPosition($offset.top, $('.content').outerHeight(), $('[data-js-css-unit="top"]').val());
-
-                        $('[data-js-css-prop="left"]').val(newLeft).change();
-                        $('[data-js-css-prop="top"]').val(newTop).change();
-                    } else {
-
-                    }
-                }
-            });
-
+            behaviorAddDraggable($div, elem);
         };
+
+        if (
+            _.get(elem, "behavior.drag-target")
+        ) {
+            behaviorAddDroppable($div, elem);
+        }
 
         return $div;
 

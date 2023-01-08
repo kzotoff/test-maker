@@ -42,6 +42,7 @@ const Translator = function() {
             "behavior-drag-target": "Drag target for",
             "behavior-arrow-start": "Can start arrow",
             "behavior-arrow-end": "Arrow end for",
+            "this-id-is-already-used": "This ID is already used, try another one",
         },
 
         "ru": {
@@ -83,6 +84,7 @@ const Translator = function() {
             "behavior-drag-target": "Корзина для",
             "behavior-arrow-start": "Начало стрелки",
             "behavior-arrow-end": "Окончание стрелки для",
+            "this-id-is-already-used": "Этот код занят, используйте другой",
         },
     };
 

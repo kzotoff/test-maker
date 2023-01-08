@@ -48,6 +48,7 @@ html {
     overflow: hidden;
     user-select: none;
     z-index: 0;
+    padding-bottom: 3px; /* nasty hack for vertical text alignment */
 }
 .element-default.ui-draggable {
     z-index: 1;
@@ -63,6 +64,12 @@ html {
     color: rgba(0, 0, 0);
     background-color: rgba(255, 255, 255);
     opacity: 0.5;
+}
+.element.solved-correct {
+    outline: 2px rgb(50, 255, 50) solid;
+}
+.element.solved-wrong {
+    outline: 2px rgb(255, 50, 50) solid;
 }
 
 /* mode *******************************************************/
