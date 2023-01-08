@@ -666,9 +666,23 @@
             $div.text(elem.content.text);
         }
 
+        if (elem.content.image) {
+            $div.css('background-image', 'url(./media/image/' + elem.content.image + ')');
+        }
+
         if (elem.style) {
             for (let prop in elem.style) {
                 $div.css(prop, elem.style[prop]);
+            }
+        }
+
+        if (elem.content.sound) {
+            $div.append('<div class="element-sound-icon fa-solid fa-music"></div>');
+        }
+
+        if (state.modes.edit) {
+            if (index === state.currentElement) {
+                $div.css("outline", "2px red dashed");
             }
         }
 
@@ -695,20 +709,6 @@
             });
 
         };
-
-        if (elem.content.sound) {
-            $div.append('<div class="element-sound-icon fa-solid fa-music"></div>');
-        }
-
-        if (elem.content.image) {
-            $div.css('background-image', 'url(./media/image/' + elem.content.image + ')');
-        }
-
-        if (state.modes.edit) {
-            if (index === state.currentElement) {
-                $div.css("outline", "2px red dashed");
-            }
-        }
 
         return $div;
 
