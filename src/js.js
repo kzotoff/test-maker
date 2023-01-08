@@ -24,6 +24,8 @@
     const arrowMaker = {
         active: false,
         fromElementIndex: undefined,
+        fromX: 0,
+        fromY: 0,
         toX: 0,
         toY: 0,
     };
@@ -456,6 +458,8 @@
         }
 
         arrowMaker.fromElementIndex = elementIndex;
+        arrowMaker.fromX = event.pageX;
+        arrowMaker.fromY = event.pageY;
         arrowMaker.active = true;
     };
 
@@ -469,16 +473,14 @@
 
         const rect = elemDiv[0].getBoundingClientRect();
 
-        const fromX = rect.left + rect.width / 2;
-        const fromY = rect.top + rect.height / 2;
+        const fromX = arrowMaker.fromX;
+        const fromY = arrowMaker.fromY;
 
         const toX = event.pageX;
         const toY = event.pageY;
 
-        // console.log(event);
-
         const strokeWidth = 2;
-        const viewBoxPlus = strokeWidth + 3; // head width is 3 pixels
+        const viewBoxPlus = strokeWidth * 3; // head width is 3 pixels
 
         const arrowWidth = Math.abs(toX - fromX);
         const arrowHeight = Math.abs(toY - fromY);
@@ -504,6 +506,10 @@
         line.attr("y1", toY > fromY ? 0 : arrowHeight);
         line.attr("y2", toY > fromY ? arrowHeight : 0);
 
+    };
+
+    const arrowModeCatch = (event) => {
+        console.log(event.target);
     };
 
     const arrowModeEnd = (event) => {
@@ -536,6 +542,7 @@
             ['click', '.element-sound-icon', doIfEditMode, elementAudioPlay],
             ['click', '.audio-overlay', doIfPlayMode, elementAudioStop],
             ['mousedown', '.element', doIfPlayMode, arrowModeBegin],
+            ['mouseup', '.element', doIfPlayMode, arrowModeCatch],
             ['mouseup', null, doIfPlayMode, arrowModeEnd],
             ['mousemove', null, doIfPlayMode, arrowModeDraw],
 
