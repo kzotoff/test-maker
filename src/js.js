@@ -21,6 +21,13 @@
         },
     };
 
+    const arrowMaker = {
+        active: false,
+        fromElementIndex: undefined,
+        toX: 0,
+        toY: 0,
+    };
+
     console.log('yeah we are starting');
 
     const stateManager = new StateManager(defaultState);
@@ -409,6 +416,16 @@
             }
         }
 
+        if (behaviorProperty == "draggable" && propertyValue == true) {
+            data.elementSetBehavior(state.currentPage, state.currentElement, "arrow-start", false);
+        }
+
+        if (behaviorProperty == "arrow-start" && propertyValue == true) {
+            data.elementSetBehavior(state.currentPage, state.currentElement, "draggable", false);
+        }
+
+        // assow source and dragging are not compatible
+
         data.elementSetBehavior(state.currentPage, state.currentElement, behaviorProperty, propertyValue);
     };
 
@@ -425,6 +442,78 @@
 
     const elementAudioStop = () => {
         audioStop();
+    };
+
+    const arrowModeBegin = (event) => {
+        console.log('arrow mode start');
+
+        const elementIndex = parseInt($(event.target).closest('[data-js-element-index]').attr('data-js-element-index'));
+        const element = data.data.pages[state.currentPage].elements[elementIndex];
+
+        if (element.behavior["arrow-start"] !== true) {
+            console.log('not an arrow start place');
+            return;
+        }
+
+        arrowMaker.fromElementIndex = elementIndex;
+        arrowMaker.active = true;
+    };
+
+    const arrowModeDraw = (event) => {
+        if (!arrowMaker.active) {
+            return;
+        }
+
+        const fromIndex = arrowMaker.fromElementIndex;
+        const elemDiv = $(`[data-js-element-index="${fromIndex}"]`);
+
+        const rect = elemDiv[0].getBoundingClientRect();
+
+        const fromX = rect.left + rect.width / 2;
+        const fromY = rect.top + rect.height / 2;
+
+        const toX = event.pageX;
+        const toY = event.pageY;
+
+        // console.log(event);
+
+        const strokeWidth = 2;
+        const viewBoxPlus = strokeWidth + 3; // head width is 3 pixels
+
+        const arrowWidth = Math.abs(toX - fromX);
+        const arrowHeight = Math.abs(toY - fromY);
+
+        const svg = $('#arrow');
+        const line = svg.find('line');
+
+        const viewBox = `-${viewBoxPlus} -${viewBoxPlus} ${arrowWidth + 2 * viewBoxPlus} ${arrowHeight + 2 * viewBoxPlus}`;
+        svg.attr("viewBox", viewBox);
+
+        svg.css({
+            "display": "block",
+            "position": "fixed",
+            "left": Math.min(fromX, toX) - viewBoxPlus,
+            "top": Math.min(fromY, toY) - viewBoxPlus,
+            "width": arrowWidth + 2 * viewBoxPlus,
+            "height": arrowHeight + 2 * viewBoxPlus,
+        });
+
+        line.attr("stroke-width", strokeWidth);
+        line.attr("x1", toX > fromX ? 0 : arrowWidth);
+        line.attr("x2", toX > fromX ? arrowWidth : 0);
+        line.attr("y1", toY > fromY ? 0 : arrowHeight);
+        line.attr("y2", toY > fromY ? arrowHeight : 0);
+
+    };
+
+    const arrowModeEnd = (event) => {
+
+        if (!arrowMaker.active) {
+            return;
+        }
+
+        console.log('arrow mode end');
+        arrowMaker.active = false;
     };
 
     const attachHandlers = () => {
@@ -446,6 +535,9 @@
             ['click', '.element', doIfPlayMode, elementAudioPlay],
             ['click', '.element-sound-icon', doIfEditMode, elementAudioPlay],
             ['click', '.audio-overlay', doIfPlayMode, elementAudioStop],
+            ['mousedown', '.element', doIfPlayMode, arrowModeBegin],
+            ['mouseup', null, doIfPlayMode, arrowModeEnd],
+            ['mousemove', null, doIfPlayMode, arrowModeDraw],
 
             ['click', '.admin-block-header', doIfEditMode, switchAdminBlockVisible],
             ['click', '[data-js-action="presentation-export"]', doIfEditMode, dataExport],
