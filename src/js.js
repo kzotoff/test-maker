@@ -23,6 +23,7 @@
 
     const arrowMaker = {
         active: false,
+        existingArrows: [],
         fromElementIndex: undefined,
         fromX: 0,
         fromY: 0,
@@ -463,21 +464,12 @@
         arrowMaker.active = true;
     };
 
-    const arrowModeDraw = (event) => {
-        if (!arrowMaker.active) {
-            return;
-        }
+    const arrowDrawCoords = (svg, params) => {
 
-        const fromIndex = arrowMaker.fromElementIndex;
-        const elemDiv = $(`[data-js-element-index="${fromIndex}"]`);
-
-        const rect = elemDiv[0].getBoundingClientRect();
-
-        const fromX = arrowMaker.fromX;
-        const fromY = arrowMaker.fromY;
-
-        const toX = event.pageX;
-        const toY = event.pageY;
+        const fromX = params.x1;
+        const fromY = params.y1;
+        const toX = params.x2;
+        const toY = params.y2;
 
         const strokeWidth = 2;
         const viewBoxPlus = strokeWidth * 3; // head width is 3 pixels
@@ -485,8 +477,8 @@
         const arrowWidth = Math.abs(toX - fromX);
         const arrowHeight = Math.abs(toY - fromY);
 
-        const svg = $('#arrow');
         const line = svg.find('line');
+        const marker = svg.find('defs').find('marker');
 
         const viewBox = `-${viewBoxPlus} -${viewBoxPlus} ${arrowWidth + 2 * viewBoxPlus} ${arrowHeight + 2 * viewBoxPlus}`;
         svg.attr("viewBox", viewBox);
@@ -506,21 +498,86 @@
         line.attr("y1", toY > fromY ? 0 : arrowHeight);
         line.attr("y2", toY > fromY ? arrowHeight : 0);
 
+        if (params.color) {
+            line.attr("stroke", params.color);
+            marker.find('polygon').attr("fill", params.color);
+
+        }
+    };
+
+    const arrowModeDraw = (event) => {
+        if (!arrowMaker.active) {
+            return;
+        }
+
+        arrowDrawCoords($('[data-js-action="arrow-template"] svg'), {
+            x1: arrowMaker.fromX,
+            y1: arrowMaker.fromY,
+            x2: event.pageX,
+            y2: event.pageY,
+        });
     };
 
     const arrowModeCatch = (event) => {
-        console.log(event.target);
-    };
-
-    const arrowModeEnd = (event) => {
 
         if (!arrowMaker.active) {
             return;
         }
 
-        console.log('arrow mode end');
-        arrowMaker.active = false;
+        console.log(event.target);
+
+        const targetElementIndex = event.target.getAttribute("data-js-element-index");
+        if (!targetElementIndex) {
+            console.warn("element has no index, strange");
+        }
+        const sourceElementIndex = arrowMaker.fromElementIndex;
+        const sourceElement = data.data.pages[state.currentPage].elements[sourceElementIndex]
+        const sourceElementBehaviorId = _.get(sourceElement, "behavior.id");
+
+        if (sourceElementIndex == targetElementIndex) {
+            return;
+        }
+
+        const targetElement = data.data.pages[state.currentPage].elements[targetElementIndex];
+
+        const correctSources = _.get(targetElement, "behavior.arrow-end-for", "").split(/[^0-9]+/).filter(e => e);
+        const isCorrect = correctSources.includes(sourceElementBehaviorId);
+
+        const newArrowSvg = $('[data-js-action="arrow-template"] svg').clone();
+
+        const fromX = arrowMaker.fromX;
+        const fromY = arrowMaker.fromY;
+
+        const toX = event.pageX;
+        const toY = event.pageY;
+
+
+        const arrowHeadId = "head-" + new Date().getTime() + Math.random();
+        newArrowSvg.find("marker").attr("id", arrowHeadId);
+        newArrowSvg.find("line").attr("marker-end", `url(#${arrowHeadId})`)
+
+        $('[data-js-action="existing-arrows"]').append(newArrowSvg);
+
+        arrowDrawCoords(newArrowSvg, {
+            x1: fromX,
+            y1: fromY,
+            x2: toX,
+            y2: toY,
+            color: isCorrect ? "#0a0" : "#f44",
+        });
+
     };
+
+    // stop arrow drawing even on empty space
+    const arrowModeEnd = (event) => {
+        arrowMaker.active = false;
+        const svg = $('[data-js-action="arrow-template"] svg');
+        svg.css('display', 'none');
+    };
+
+    //
+    //
+    //
 
     const attachHandlers = () => {
 
