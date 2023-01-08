@@ -46,6 +46,14 @@
     //
     //
 
+    const fullScreenToggle = () => {
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        } else {
+            $('html')[0].requestFullscreen();
+        }
+    }
+
     const switchAdminBlockVisible = (event) => {
         const blockId = $(event.target).closest('.admin-block').attr('data-admin-block-id');
         state.adminBlocksShown[blockId] = !state.adminBlocksShown[blockId];
@@ -102,18 +110,6 @@
             }
         }
         data.reset();
-
-        await Promise.resolve($.ajax({
-            url: './api/clear.php',
-            type: 'POST',
-            contentType: false,
-            success: (result) => {
-                fillSoundSelector();
-                fillImageSelector();
-                notificator.info(translator.forCode("media-storage-cleared"));
-                console.log('clear ok');
-            },
-        }));
         return true;
     };
 
@@ -273,6 +269,24 @@
         });
     };
 
+    const mediaEmpty = async () => {
+
+        if (!confirm(translator.forCode("media-empty-confirmation"))) {
+            return false;
+        }
+        await Promise.resolve($.ajax({
+            url: './api/clear.php',
+            type: 'POST',
+            contentType: false,
+            success: (result) => {
+                fillSoundSelector();
+                fillImageSelector();
+                notificator.info(translator.forCode("media-storage-cleared"));
+                console.log('clear ok');
+            },
+        }));
+    };
+
     const pagePrev = () => {
         state.currentPage = Math.max(state.currentPage - 1, 0);
         state.currentElement = 0;
@@ -368,9 +382,18 @@
 
     };
 
-    const elementSetDraggable = (event) => {
-        const isDraggable = event.target.checked;
-        data.elementSetDraggable(state.currentPage, state.currentElement, isDraggable);
+    const elementSetBehavior = (event) => {
+
+        const $control = $(event.target);
+        const behaviorProperty = $control.attr("data-js-behavior");
+
+        var propertyValue;
+        if ($control.attr("type") == "checkbox") {
+            propertyValue = $control[0].checked;
+        } else {
+            propertyValue = $control.val();
+        }
+        data.elementSetBehavior(state.currentPage, state.currentElement, behaviorProperty, propertyValue);
     };
 
     const elementAudioPlay = (event) => {
@@ -399,6 +422,7 @@
             // general
             ['click', '[data-js-action="mode-set-edit"]', doAlways, modeEditOn],
             ['click', '[data-js-action="mode-set-play"]', doAlways, modeEditOff],
+            ['click', '[data-js-action="mode-set-fullscreen"]', doAlways, fullScreenToggle],
 
             ['click', '[data-js-action="presentation-create"]', doAlways, dataNew],
             ['click', '[data-js-action="presentation-edit"]', doAlways, modeStartOff],
@@ -410,6 +434,7 @@
             ['click', '[data-js-action="presentation-export"]', doIfEditMode, dataExport],
             ['change', '[data-js-action="presentation-import"]', doIfEditMode, dataImport],
             ['click', '[data-js-action="presentation-reset"]', doIfEditMode, dataReset],
+            ['click', '[data-js-action="media-empty"]', doIfEditMode, mediaEmpty],
             ['change', '[data-js-action="media-upload"]', doIfEditMode, mediaUpload],
 
             // pages
@@ -433,7 +458,9 @@
             ['change', '[data-js-action="element-css-toggle"]', doIfEditMode, elementSetStyle],
             ['change', '[data-js-action="element-css-value"]', doIfEditMode, elementSetStyle],
             ['change', '[data-js-action="element-css-unit"]', doIfEditMode, elementSetStyle],
-            ['change', '[data-js-behavior="draggable"]', doIfEditMode, elementSetDraggable],
+
+            // end-user interactivity
+            ['change', '[data-js-action="behavior-control"]', doIfEditMode, elementSetBehavior],
         ];
 
         handlers.forEach(handlerInfo => {
@@ -507,6 +534,10 @@
                 $elem.val('');
                 return;
             }
+            if ($elem.attr("type") == "number") {
+                $elem.val('');
+                return;
+            }
             if ($elem.attr("type") == "color") {
                 $elem.val('#000000');
                 return;
@@ -516,7 +547,6 @@
         $('[data-js-content="element-text"]').text("");
         $('[data-js-content="element-sound"]').val("");
         $('[data-js-action="element-image"]').val("");
-        $('[data-js-behavior="draggable"]').prop("checked", false);
         $('[data-js-action="element-css-toggle"]').prop("checked", false);
     };
 
@@ -571,7 +601,46 @@
         $('[data-js-content="element-text"]').val(element.content.text);
         $('[data-js-content="element-sound"]').val(element.content.sound);
         $('[data-js-action="element-image"]').val(element.content.image);
-        $('[data-js-behavior="draggable"]').prop("checked", _.get(element, "behavior.draggable", false));
+    };
+
+    const clearElementBehaviorProps = () => {
+        $('[data-js-action="behavior-control"][type="checkbox"]').prop("checked", false);
+        $('[data-js-action="behavior-control"][type="text"]').val("");
+        $('[data-js-action="behavior-control"][type="number"]').val("");
+    };
+
+    const fillBehaviorProps = () => {
+
+        clearElementBehaviorProps();
+
+        const element = data.data.pages[state.currentPage].elements[state.currentElement];
+
+        if (!element) {
+            console.log('no elements');
+            return;
+        }
+        if (!element.behavior) {
+            console.warn('element has no behavior section, it is so strange');
+            return;
+        }
+
+        for (let prop in element.behavior) {
+
+            const value = element.behavior[prop];
+            const propControl = $(`[data-js-behavior="${prop}"]`);
+
+            if (!propControl) {
+                console.warn(`Control not found for behavior property ${prop}. Property will be removed`);
+                delete(element.behavior[prop]);
+                continue;
+            }
+
+            if (propControl.attr("type") == "checkbox") {
+                propControl[0].checked = !! value;
+            } else {
+                propControl.val(value);
+            }
+        }
     };
 
     const calcPosition = (positionPx, fullSize, unit) => {
@@ -610,14 +679,18 @@
         ) {
             $div.draggable({
                 stop: () => {
-                    const $offset = $div.offset();
-                    console.log('drag stop:', $offset);
+                    if (state.modes.edit) {
+                        const $offset = $div.offset();
+                        console.log('drag stop:', $offset);
 
-                    const newLeft = calcPosition($offset.left, $('.content').outerWidth(), $('[data-js-css-unit="left"]').val());
-                    const newTop = calcPosition($offset.top, $('.content').outerHeight(), $('[data-js-css-unit="top"]').val());
+                        const newLeft = calcPosition($offset.left, $('.content').outerWidth(), $('[data-js-css-unit="left"]').val());
+                        const newTop = calcPosition($offset.top, $('.content').outerHeight(), $('[data-js-css-unit="top"]').val());
 
-                    $('[data-js-css-prop="left"]').val(newLeft).change();
-                    $('[data-js-css-prop="top"]').val(newTop).change();
+                        $('[data-js-css-prop="left"]').val(newLeft).change();
+                        $('[data-js-css-prop="top"]').val(newTop).change();
+                    } else {
+
+                    }
                 }
             });
 
@@ -726,8 +799,9 @@
         renderPage(".content", data.data.pages[state.currentPage]);
         renderElements(".content", data.data.pages[state.currentPage]);
         updateAdminBlockState();
-        fillCssFields();
         fillPagePropControls();
+        fillCssFields();
+        fillBehaviorProps();
     }
 
     //

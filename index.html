@@ -52,6 +52,7 @@
         <div class="mode-controls">
             <button class="mode-control-button fa-solid fa-pen-to-square" data-js-action="mode-set-edit"></button>
             <button class="mode-control-button fa-solid fa-play" data-js-action="mode-set-play"></button>
+            <button class="mode-control-button fa-solid fa-expand" data-js-action="mode-set-fullscreen"></button>
         </div>
         <div class="admin">
 
@@ -72,6 +73,7 @@
                                 <input type="file" data-js-action="presentation-import" />
                             </form>
                         </div>
+                        <button class="admin-control-icon-button fa-solid fa-trash-can" data-js-action="media-empty"></button>
                     </div>
                 </div>
             </div>
@@ -240,10 +242,30 @@
                     Behavior
                 </div>
                 <div class="admin-block-content">
+
                     <div class="admin-block-control-group">
-                        <label for="data-js-content-draggable" data-translation-id="style-draggable">Draggable</label>
-                        <input id="data-js-content-draggable" type="checkbox" data-js-behavior="draggable">
+                        <label data-translation-id="behavior-id">ID</label>
+                        <input type="text" data-js-action="behavior-control" data-js-behavior="id">
                     </div>
+
+                    <div class="admin-block-control-group">
+                        <label for="data-js-content-draggable" data-translation-id="behavior-draggable">Draggable</label>
+                        <input id="data-js-content-draggable" type="checkbox" data-js-action="behavior-control" data-js-behavior="draggable">
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label data-translation-id="behavior-drag-target">Drag target for</label>
+                        <input type="text" data-js-action="behavior-control" data-js-behavior="drag-target">
+                    </div>
+
+                    <div class="admin-block-control-group">
+                        <label for="data-js-content-arrow-start" data-translation-id="behavior-arrow-start">Arrow start</label>
+                        <input id="data-js-content-arrow-start" type="checkbox" data-js-action="behavior-control" data-js-behavior="arrow-start">
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label data-translation-id="behavior-arrow-end">Arrow end for</label>
+                        <input type="text" data-js-action="behavior-control" data-js-behavior="arrow-end">
+                    </div>
+
                 </div>
             </div>
 

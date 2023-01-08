@@ -47,7 +47,12 @@ html {
     background-position: center;
     overflow: hidden;
     user-select: none;
+    z-index: 0;
 }
+.element-default.ui-draggable {
+    z-index: 1;
+}
+
 .element .element-sound-icon {
     position: absolute;
     top: 0px;
@@ -229,6 +234,7 @@ html .file-input-customizer > label {
 .admin input[type="text"],
 .admin input[type="number"],
 .admin input[type="file"],
+.admin input[type="checkbox"],
 .admin textarea,
 .admin select {
     font-size: 100%;

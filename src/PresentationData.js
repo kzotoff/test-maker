@@ -106,10 +106,10 @@ const PresentationData = function(options) {
         this.data.pages[pageIndex].elements.splice(elementIndex, 1);
     };
 
-    this.elementSetDraggable = (pageIndex, elementIndex, newValue) => {
+    this.elementSetBehavior = (pageIndex, elementIndex, property, newValue) => {
         _.set(
             this.data.pages[pageIndex].elements[elementIndex],
-            "behavior.draggable",
+            `behavior.${property}`,
             newValue
         );
     };
