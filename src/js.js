@@ -62,6 +62,7 @@
 
     const modeEditOn = () => {
         state.modes.edit = true;
+        arrowReset();
     };
 
     const modeEditOff = () => {
@@ -563,8 +564,12 @@
 
         const targetElement = data.data.pages[state.currentPage].elements[targetElementIndex];
 
-        const correctSources = _.get(targetElement, "behavior.arrow-end-for", "").split(/[^0-9]+/).filter(e => e);
-        const isCorrect = correctSources.includes(sourceElementBehaviorId);
+        const correctSources = _.get(targetElement, "behavior.arrow-end-for", "")
+            .split(/[^0-9]+/)
+            .filter(e => e)
+            .map(e => e.toString());
+
+        const isCorrect = correctSources.includes(sourceElementBehaviorId.toString());
 
         const newArrowSvg = $('[data-js-action="arrow-template"] svg').clone();
 
@@ -895,8 +900,11 @@
                 const droppedItemData = data.data.pages[state.currentPage].elements[droppedElemIndex]
                 const droppedElementId = droppedItemData.behavior.id;
 
-                const correctElements = _.get(elemData, "behavior.drag-target", "").split(/[^0-9]+/).filter(e => e);
-                if (correctElements.includes(droppedElementId)) {
+                const correctElements = _.get(elemData, "behavior.drag-target", "")
+                    .split(/[^0-9]+/)
+                    .filter(e => e)
+                    .map(e => e.toString());
+                if (correctElements.includes(droppedElementId.toString())) {
                     $(droppedElem).addClass("solved-correct");
                 } else {
                     $(droppedElem).addClass("solved-wrong");
