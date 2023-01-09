@@ -102,7 +102,7 @@ const PresentationData = function(options) {
 
         var maxBehaviorId = 0;
         this.data.pages[pageIndex].elements.forEach(elem => {
-            maxBehaviorId = Math.max(elem.behavior.id, maxBehaviorId);
+            maxBehaviorId = Math.max(elem.behavior.id || 0, maxBehaviorId);
         });
         const newElement = this.newElement();
         newElement.behavior.id = maxBehaviorId + 1;
