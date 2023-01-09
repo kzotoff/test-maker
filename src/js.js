@@ -21,15 +21,6 @@
         },
     };
 
-    const arrowMaker = {
-        active: false,
-        existingArrows: [],
-        fromElementIndex: undefined,
-        fromX: 0,
-        fromY: 0,
-        toX: 0,
-        toY: 0,
-    };
 
     console.log('yeah we are starting');
 
@@ -92,22 +83,10 @@
         };
     };
 
-    //
-    //
-    //
-
-    const audioPlay = (url) => {
-        console.log('audio play');
-        audio.pause();
-        audio.src = url;
-        audio.play();
-        $('.audio-overlay').css('display', 'block');
-    };
-
-    const audioStop = () => {
-        console.log('audio stop');
-        audio.pause();
-        $('.audio-overlay').css('display', 'none');
+    const playReset = () => {
+        console.log('play-reset');
+        arrowReset();
+        render();
     };
 
     //
@@ -432,6 +411,30 @@
         data.elementSetBehavior(state.currentPage, state.currentElement, behaviorProperty, propertyValue);
     };
 
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // audio module
+    //
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    const audioPlay = (url) => {
+        console.log('audio play');
+        audio.pause();
+        audio.src = url;
+        audio.play();
+        $('.audio-overlay').css('display', 'block');
+    };
+
+    const audioStop = () => {
+        console.log('audio stop');
+        audio.pause();
+        $('.audio-overlay').css('display', 'none');
+    };
+
     const elementAudioPlay = (event) => {
         const elementIndex = parseInt($(event.target).closest('[data-js-element-index]').attr('data-js-element-index'));
         const soundSrc = data.data.pages[state.currentPage].elements[elementIndex].content.sound;
@@ -445,6 +448,26 @@
 
     const elementAudioStop = () => {
         audioStop();
+    };
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // arrows are here
+    //
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    const arrowMaker = {
+        active: false,
+        existingArrows: [],
+        fromElementIndex: undefined,
+        fromX: 0,
+        fromY: 0,
+        toX: 0,
+        toY: 0,
     };
 
     const arrowModeBegin = (event) => {
@@ -471,7 +494,7 @@
         const toX = params.x2;
         const toY = params.y2;
 
-        const strokeWidth = 2;
+        const strokeWidth = 4;
         const viewBoxPlus = strokeWidth * 3; // head width is 3 pixels
 
         const arrowWidth = Math.abs(toX - fromX);
@@ -575,9 +598,20 @@
         svg.css('display', 'none');
     };
 
+    const arrowReset = (event) => {
+        arrowMaker.existingArrows = [];
+        $('[data-js-action="existing-arrows"]').empty();
+    };
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
     //
+    // all your handler are belong to us
     //
-    //
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
 
     const attachHandlers = () => {
 
@@ -591,6 +625,7 @@
             ['click', '[data-js-action="mode-set-edit"]', doAlways, modeEditOn],
             ['click', '[data-js-action="mode-set-play"]', doAlways, modeEditOff],
             ['click', '[data-js-action="mode-set-fullscreen"]', doAlways, fullScreenToggle],
+            ['click', '[data-js-action="play-restart"]', doIfPlayMode, playReset],
 
             ['click', '[data-js-action="presentation-create"]', doAlways, dataNew],
             ['click', '[data-js-action="presentation-edit"]', doAlways, modeStartOff],

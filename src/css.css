@@ -88,13 +88,10 @@ html {
     height: 32px;
     width: 32px;
 }
-html[mode-edit="off"] .admin {
+html[mode-edit="off"] [data-visible-edit-only] {
     display: none;
 }
-html[mode-edit="off"] .mode-control-button[data-js-action="mode-set-play"] {
-    display: none;
-}
-html[mode-edit="on"] .mode-control-button[data-js-action="mode-set-edit"] {
+html[mode-edit="on"] [data-visible-play-only] {
     display: none;
 }
 
