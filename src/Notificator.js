@@ -16,6 +16,7 @@ const Notificator = function(targetContainerSelector, langPack) {
             .attr("data-notification-level", useLevel)
             .text(text)
             .appendTo($(this.containerSelector));
+
         setTimeout(() => {
             moreElem.remove();
         }, useDelay);

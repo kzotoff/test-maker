@@ -1113,7 +1113,7 @@
             () => { applyModes(); }
         )
 
-        helpManager.install();
+        helpManager.install(helpId => translator.forCode(helpId));
         applyModes();
         attachHandlers();
         fillSoundSelector();

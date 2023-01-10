@@ -6,10 +6,6 @@ if (!$) {
 
 const HelpManager = function() {
 
-    this.contents = {
-        "1": "Reset presentation and start over. All slides will be deleted, while media library content will remain.",
-    };
-
     this.helpMode = false;
     this.helpContainer = null;
 
@@ -31,9 +27,9 @@ const HelpManager = function() {
         }
     };
 
-    this.getHelpContent = (element) => {
-        const helpCode = $(element).attr("data-help-id");
-        return this.contents[helpCode] || "no content :-(";
+    // this may be replaced while installing
+    this.getHelpContent = (helpId) => {
+        "no help available";
     };
 
     this.showHelp = (event) => {
@@ -43,9 +39,9 @@ const HelpManager = function() {
 
         this.helpContainer = $('<div>')
             .addClass("helper-container")
-            .html(this.getHelpContent(event.target))
+            .html(this.getHelpContent(event.target.getAttribute("data-help-id")))
             .appendTo($('body'))
-            ;
+        ;
     };
 
     this.hideHelp = (event) => {
@@ -55,8 +51,9 @@ const HelpManager = function() {
     };
 
 
-    this.install = () => {
+    this.install = (getContentFunc) => {
         this.helpModeOff();
+        this.getHelpContent = getContentFunc;
         $('body').on('mouseover', '[data-help-id]', this.showHelp);
         $('body').on('mouseout', '[data-help-id]', this.hideHelp);
     };

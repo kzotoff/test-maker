@@ -43,7 +43,10 @@ const Translator = function() {
             "behavior-arrow-start": "Can start arrow",
             "behavior-arrow-end": "Arrow end for",
             "this-id-is-already-used": "This ID is already used, try another one",
+
+            "-h-button-reset": "Reset presentation and start over. All slides will be deleted, while media library content will remain.",
         },
+
 
         "ru": {
             "presentation-block-header": "Файл",
@@ -85,6 +88,8 @@ const Translator = function() {
             "behavior-arrow-start": "Начало стрелки",
             "behavior-arrow-end": "Окончание стрелки для кодов",
             "this-id-is-already-used": "Этот код занят, используйте другой",
+
+            "-h-button-reset": "Очистить презентацию и начать заново. Изображения и звуки останутся.",
         },
     };
 
