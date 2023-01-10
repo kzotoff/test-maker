@@ -15,11 +15,13 @@
 
         <link rel="stylesheet" href="./lib/jquery-ui/jquery-ui.min.css" />
         <link rel="stylesheet" href="./src/css.css" />
+        <link rel="stylesheet" href="./src/helpManager.css" />
         <link rel="stylesheet" href="./src/notificator.css" />
         <script src="./src/PresentationData.js"></script>
         <script src="./src/Translator.js"></script>
         <script src="./src/Notificator.js"></script>
         <script src="./src/StateManager.js"></script>
+        <script src="./src/HelpManager.js"></script>
         <script src="./src/js.js"></script>
     </head>
     <body>
@@ -63,7 +65,7 @@
                 </div>
                 <div class="admin-block-content">
                     <div class="admin-block-control-group">
-                        <button class="admin-control-icon-button fa-solid fa-file" data-js-action="presentation-reset"></button>
+                        <button class="admin-control-icon-button fa-solid fa-file" data-js-action="presentation-reset" data-help-id="1"></button>
                         <button class="admin-control-icon-button fa-solid fa-floppy-disk" data-js-action="presentation-export"></button>
 
                         <div class="file-input-customizer file-input-for-import">
@@ -75,6 +77,7 @@
                             </form>
                         </div>
                         <button class="admin-control-icon-button fa-solid fa-trash-can" data-js-action="media-empty"></button>
+                        <button class="admin-control-icon-button fa-solid fa-circle-question" data-js-action="helper-mode-switch"></button>
                     </div>
                 </div>
             </div>
