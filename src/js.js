@@ -35,14 +35,21 @@
 
 
     const helpManager = new HelpManager();
+
     const translator = new Translator();
+
+    const audio = new Audio();
+    audio.onended = () => {
+        audioStop();
+    };
+
+    const notificator = new Notificator(".notifications", "LANG_PACK");
+
     const data = new PresentationData({
         defaultText: translator.forCode("new-element-text"),
     });
-    const audio = new Audio();
-    const notificator = new Notificator(".notifications", "LANG_PACK");
-
     data.loadFromStorage();
+
 
     //
     //
@@ -319,6 +326,7 @@
     const pageAdd = () => {
         data.pageAdd();
         pageNext();
+        data.elementAdd(state.currentPage);
     };
 
     const pageDelete = () => {
@@ -500,7 +508,15 @@
 
     const arrowMaker = {
         active: false,
-        existingArrows: [],
+        existingArrows: [
+            /*
+            {
+                "from": sourceElementIndex,
+                "to": targetElementIndex,
+                "node": newArrow,
+            }
+            */
+        ],
         fromElementIndex: undefined,
         fromX: 0,
         fromY: 0,
@@ -564,6 +580,7 @@
             marker.find('polygon').attr("fill", params.color);
 
         }
+        return svg;
     };
 
     const arrowModeDraw = (event) => {
@@ -585,8 +602,7 @@
             return;
         }
 
-        console.log(event.target);
-
+        // first, just get source and target elements
         const targetElementIndex = event.target.getAttribute("data-js-element-index");
         if (!targetElementIndex) {
             console.warn("element has no index, strange");
@@ -601,6 +617,35 @@
 
         const targetElement = data.data.pages[state.currentPage].elements[targetElementIndex];
 
+        // check if limits are not exceeded
+        // remove all "from" and "to" when exceeded
+        const sourceElementFromLimit = sourceElement.behavior["arrow-max-count-from"];
+        const targetElementToLimit = targetElement.behavior["arrow-max-count-to"];
+
+        const sourceLimitExceeded =
+            sourceElementFromLimit > 0
+            &&
+            arrowMaker.existingArrows.filter(arrow => arrow.from == sourceElementIndex).length >= sourceElementFromLimit;
+
+        const targetLimitExceeded =
+            targetElementToLimit > 0
+            &&
+            arrowMaker.existingArrows.filter(arrow => arrow.to == targetElementIndex).length >= targetElementToLimit;
+
+        arrowMaker.existingArrows = arrowMaker.existingArrows.filter(arrow => {
+
+            if (
+                sourceLimitExceeded && arrow.from == sourceElementIndex
+                ||
+                targetLimitExceeded && arrow.to == targetElementIndex
+            ) {
+                $(arrow.htmlElement).remove();
+                return false;
+            }
+            return true;
+        });
+
+        // well, now add new arrow
         const correctSources = _.get(targetElement, "behavior.arrow-end-for", "")
             .split(/[^0-9]+/)
             .filter(e => e)
@@ -623,13 +668,19 @@
 
         $('[data-js-action="existing-arrows"]').append(newArrowSvg);
 
-        arrowDrawCoords(newArrowSvg, {
+        const newArrow = arrowDrawCoords(newArrowSvg, {
             x1: fromX,
             y1: fromY,
             x2: toX,
             y2: toY,
             color: isCorrect ? "#0a0" : "#f44",
         });
+
+        arrowMaker.existingArrows.push({
+            "from": sourceElementIndex,
+            "to": targetElementIndex,
+            "htmlElement": newArrow,
+        })
 
     };
 
@@ -675,7 +726,7 @@
 
             ['click', '.element', doIfPlayMode, elementAudioPlay],
             ['click', '.element-sound-icon', doIfEditMode, elementAudioPlay],
-            ['click', '.audio-overlay', doIfPlayMode, elementAudioStop],
+            ['click', '.audio-overlay', doAlways, elementAudioStop],
             ['mousedown', '.element', doIfPlayMode, arrowModeBegin],
             ['mouseup', '.element', doIfPlayMode, arrowModeCatch],
             ['mouseup', null, doIfPlayMode, arrowModeEnd],
@@ -745,7 +796,7 @@
 
     const renderElementsSummary = () => {
         const div = $('[data-js-target="elements-summary"]');
-        if (data.data.pages.length === 0) {
+        if (data.data.pages.length === 0 || !data.data.pages[state.currentPage]) {
             div.html("- / -");
             return;
         }
@@ -802,7 +853,13 @@
     };
 
     const fillCssFields = () => {
+
+        if (!data.data.pages[state.currentPage]) {
+            return;
+        }
+
         clearElementPropControls();
+
 
         const element = data.data.pages[state.currentPage].elements[state.currentElement];
 
@@ -861,6 +918,10 @@
     };
 
     const fillBehaviorProps = () => {
+
+        if (!data.data.pages[state.currentPage]) {
+            return;
+        }
 
         clearElementBehaviorProps();
 
@@ -1004,7 +1065,7 @@
     const renderPage = (targetSelector, pageContent) => {
 
         if (!pageContent) {
-            console.log("no page content provided, seems no pages at all")
+            console.log("no page content provided")
             return;
         }
 
@@ -1021,7 +1082,7 @@
     const renderElements = (targetSelector, pageContent) => {
 
         if (!pageContent) {
-            console.log("no page content provided, seems no pages at all")
+            console.log("no page content provided")
             return;
         }
 

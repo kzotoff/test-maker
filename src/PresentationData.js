@@ -31,10 +31,10 @@ const PresentationData = function(options) {
                 "draggable": false,
             },
             "style": {
-                "left": "45%",
-                "top": "45%",
-                "width": "10%",
-                "height": "50px",
+                "left": "200px",
+                "top": "200px",
+                "width": "160px",
+                "height": "160px",
                 "background-color": "#aaffaa",
             },
         };
@@ -44,9 +44,7 @@ const PresentationData = function(options) {
     this.emptyPage = () => {
         return {
             metadata: {},
-            elements: [
-                this.newElement(),
-            ],
+            elements: [],
         };
     };
 

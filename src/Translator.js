@@ -42,9 +42,13 @@ const Translator = function() {
             "behavior-drag-target": "Drag target for",
             "behavior-arrow-start": "Can start arrow",
             "behavior-arrow-end": "Arrow end for",
+            "behavior-arrow-max-count-from": "Max arrow count from",
+            "behavior-arrow-max-count-to": "Max arrow count to",
             "this-id-is-already-used": "This ID is already used, try another one",
 
             "-h-button-reset": "Reset presentation and start over. All slides will be deleted, while media library content will remain.",
+            "-h-behavior-arrow-max-count-from": "Maximum arrow count which can start from this element.",
+            "-h-behavior-arrow-max-count-to": "Maximum arrow count which can end at this element.",
         },
 
 
@@ -87,9 +91,14 @@ const Translator = function() {
             "behavior-drag-target": "Цель для кодов",
             "behavior-arrow-start": "Начало стрелки",
             "behavior-arrow-end": "Окончание стрелки для кодов",
+            "behavior-arrow-max-count-from": "Макс. кол-во стрелок отсюда",
+            "behavior-arrow-max-count-to": "Макс. кол-во стрелок сюда",
             "this-id-is-already-used": "Этот код занят, используйте другой",
 
             "-h-button-reset": "Очистить презентацию и начать заново. Изображения и звуки останутся.",
+            "-h-behavior-arrow-max-count-from": "Максимальное количество стрелок, которые могут начинаться на элементе.",
+            "-h-behavior-arrow-max-count-to": "Максимальное количество стрелок, которые могут заканчиваться на элементе.",
+
         },
     };
 

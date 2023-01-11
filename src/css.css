@@ -218,11 +218,12 @@ html .file-input-customizer > label {
 }
 
 .admin-block-control-group:not(:last-child) {
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
 .admin-block-control-group > label {
     flex: 0 0 60%;
+    line-height: 1;
 }
 
 .admin-block-control-group > input,
@@ -232,6 +233,7 @@ html .file-input-customizer > label {
 
 .admin-block-control-group > *:not(:last-child) {
     margin-right: 4px;
+    font-size: 14px;
 }
 
 

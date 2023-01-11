@@ -37,9 +37,11 @@ const HelpManager = function() {
             return;
         }
 
+        const helpContentId = $(event.target).closest("[data-help-id]").attr("data-help-id");
+        const helpContent = this.getHelpContent(helpContentId);
         this.helpContainer = $('<div>')
             .addClass("helper-container")
-            .html(this.getHelpContent(event.target.getAttribute("data-help-id")))
+            .html(helpContent)
             .appendTo($('body'))
         ;
     };
