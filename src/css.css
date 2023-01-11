@@ -163,7 +163,6 @@ html[mode-edit="on"] [data-visible-play-only] {
 
 .admin-control-icon-button {
     color: var(--control-color);
-    font-size: 24px;
     padding: 4px;
     border-radius: 4px;
     border: 1px var(--control-border-color) solid;
@@ -172,6 +171,10 @@ html[mode-edit="on"] [data-visible-play-only] {
     cursor: pointer;
     min-width: 34px;
 }
+.admin-control-icon-button::before {
+    font-size: 24px;
+}
+
 .admin-control-icon-button:hover,
 .file-input-customizer:hover .admin-control-icon-button {
     background-color: var(--control-background-color-hover);
