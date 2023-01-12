@@ -46,6 +46,9 @@ const Translator = function() {
             "behavior-arrow-max-count-from": "Max arrow count from",
             "behavior-arrow-max-count-to": "Max arrow count to",
             "this-id-is-already-used": "This ID is already used, try another one",
+            "solution-block-header": "Solution",
+            "solution-correct-arrows": "Correct arrows needed",
+            "solution-correct-show-element": "Show elements when correct",
 
             "-h-button-reset": "Reset presentation and start over. All slides will be deleted, while media library content will remain.",
             "-h-behavior-arrow-max-count-from": "Maximum arrow count which can start from this element.",
@@ -96,6 +99,10 @@ const Translator = function() {
             "behavior-arrow-max-count-from": "Макс. кол-во стрелок отсюда",
             "behavior-arrow-max-count-to": "Макс. кол-во стрелок сюда",
             "this-id-is-already-used": "Этот код занят, используйте другой",
+            "solution-block-header": "Решение",
+            "solution-correct-arrows": "Нужно верных стрелок",
+            "solution-correct-show-element": "При решении показать элементы",
+
 
             "-h-button-reset": "Очистить презентацию и начать заново. Изображения и звуки останутся.",
             "-h-behavior-arrow-max-count-from": "Максимальное количество стрелок, которые могут начинаться на элементе.",
