@@ -45,6 +45,7 @@ const PresentationData = function(options) {
         return {
             metadata: {},
             elements: [],
+            solution: {},
         };
     };
 
@@ -115,6 +116,14 @@ const PresentationData = function(options) {
         _.set(
             this.data.pages[pageIndex].elements[elementIndex],
             `behavior.${property}`,
+            newValue
+        );
+    };
+
+    this.pageSetSolution = (pageIndex, elementIndex, property, newValue) => {
+        _.set(
+            this.data.pages[pageIndex],
+            `solution.${property}`,
             newValue
         );
     };

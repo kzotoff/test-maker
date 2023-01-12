@@ -4,7 +4,6 @@
 
     const defaultState = {
         modes: {
-            start: true,
             edit: true,
         },
         currentPage: 0,
@@ -18,9 +17,10 @@
             "elements": true,
             "content": true,
             "design": true,
+            "behavior": true,
+            "solution": true,
         },
     };
-
 
     console.log('yeah we are starting');
 
@@ -32,7 +32,6 @@
         () => { return JSON.stringify(state); },
         () => { stateManager.save(); }
     );
-
 
     const helpManager = new HelpManager();
 
@@ -75,14 +74,6 @@
 
     const modeEditOff = () => {
         state.modes.edit = false;
-    };
-
-    const modeStartOn = () => {
-        state.modes.start = true;
-    };
-
-    const modeStartOff = () => {
-        state.modes.start = false;
     };
 
     const applyModes = () => {
@@ -129,7 +120,6 @@
         if (!ok) {
             return;
         }
-        modeStartOff();
     };
 
     const dataExport = async () => {
@@ -253,7 +243,6 @@
         fillSoundSelector();
         fillImageSelector();
         data.saveToStorage();
-        modeStartOff();
         render();
     };
 
@@ -444,15 +433,14 @@
             }
         }
 
+        // assow source and dragging are not compatible
         if (behaviorProperty == "draggable" && propertyValue == true) {
             data.elementSetBehavior(state.currentPage, state.currentElement, "arrow-start", false);
         }
-
         if (behaviorProperty == "arrow-start" && propertyValue == true) {
             data.elementSetBehavior(state.currentPage, state.currentElement, "draggable", false);
         }
 
-        // assow source and dragging are not compatible
 
         data.elementSetBehavior(state.currentPage, state.currentElement, behaviorProperty, propertyValue);
     };
@@ -541,6 +529,12 @@
         arrowMaker.active = true;
     };
 
+    const arrowAddCoords = (params) => {
+        const newArrowSvg = $('[data-js-action="arrow-template"] svg').clone();
+        $('[data-js-action="existing-arrows"]').append(newArrowSvg);
+        return arrowDrawCoords(newArrowSvg, params);
+    }
+
     const arrowDrawCoords = (svg, params) => {
 
         const fromX = params.x1;
@@ -574,6 +568,11 @@
         line.attr("x2", toX > fromX ? arrowWidth : 0);
         line.attr("y1", toY > fromY ? 0 : arrowHeight);
         line.attr("y2", toY > fromY ? arrowHeight : 0);
+
+        // re-attach end marker (separate for each SVG so add unique ID)
+        const arrowHeadId = "head-" + new Date().getTime() + Math.random();
+        marker.attr("id", arrowHeadId);
+        line.attr("marker-end", `url(#${arrowHeadId})`)
 
         if (params.color) {
             line.attr("stroke", params.color);
@@ -617,7 +616,7 @@
 
         const targetElement = data.data.pages[state.currentPage].elements[targetElementIndex];
 
-        // check if limits are not exceeded
+        // check if from/to limits are not exceeded
         // remove all "from" and "to" when exceeded
         const sourceElementFromLimit = sourceElement.behavior["arrow-max-count-from"];
         const targetElementToLimit = targetElement.behavior["arrow-max-count-to"];
@@ -647,41 +646,28 @@
 
         // well, now add new arrow
         const correctSources = _.get(targetElement, "behavior.arrow-end-for", "")
-            .split(/[^0-9]+/)
+            .split(/[,\s\/]+/)
             .filter(e => e)
             .map(e => e.toString());
 
         const isCorrect = correctSources.includes(sourceElementBehaviorId.toString());
 
-        const newArrowSvg = $('[data-js-action="arrow-template"] svg').clone();
-
-        const fromX = arrowMaker.fromX;
-        const fromY = arrowMaker.fromY;
-
-        const toX = event.pageX;
-        const toY = event.pageY;
-
-
-        const arrowHeadId = "head-" + new Date().getTime() + Math.random();
-        newArrowSvg.find("marker").attr("id", arrowHeadId);
-        newArrowSvg.find("line").attr("marker-end", `url(#${arrowHeadId})`)
-
-        $('[data-js-action="existing-arrows"]').append(newArrowSvg);
-
-        const newArrow = arrowDrawCoords(newArrowSvg, {
-            x1: fromX,
-            y1: fromY,
-            x2: toX,
-            y2: toY,
+        const newArrow = arrowAddCoords({
+            x1: arrowMaker.fromX,
+            y1: arrowMaker.fromY,
+            x2: event.pageX,
+            y2: event.pageY,
             color: isCorrect ? "#0a0" : "#f44",
         });
 
         arrowMaker.existingArrows.push({
             "from": sourceElementIndex,
             "to": targetElementIndex,
+            "isCorrect": isCorrect,
             "htmlElement": newArrow,
-        })
+        });
 
+        checkSolution();
     };
 
     // stop arrow drawing even on empty space
@@ -694,6 +680,74 @@
     const arrowReset = (event) => {
         arrowMaker.existingArrows = [];
         $('[data-js-action="existing-arrows"]').empty();
+    };
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // solution control
+    //
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    const pageSetSolution = (event) => {
+
+        const $control = $(event.target);
+        const solutionProperty = $control.attr("data-js-solution");
+
+        var propertyValue;
+        if ($control.attr("type") == "checkbox") {
+            propertyValue = $control[0].checked;
+        } else {
+            propertyValue = $control.val();
+        }
+
+        data.pageSetSolution(state.currentPage, state.currentElement, solutionProperty, propertyValue);
+    };
+
+    const checkSolution = () => {
+        setTimeout(doCheckSolution, 10);
+    };
+
+    const doCheckSolution = () => {
+        console.log('checking if all correct...');
+
+        const solution = data.data.pages[state.currentPage].solution;
+
+        if (!solution) {
+            console.log("no solution section, nothing to check");
+            return;
+        }
+
+        const arrowsNeeded = solution["solution-correct-arrows"];
+        if (arrowsNeeded) {
+            var arrowsTotal = arrowMaker.existingArrows.length;
+            var arrowsCorrect = arrowMaker.existingArrows.filter(arrow => arrow.isCorrect).length;
+
+            if (arrowsTotal == arrowsCorrect && arrowsTotal == arrowsNeeded) {
+                showCorrectSolution();
+            }
+        }
+    };
+
+    // do when solution is correct
+    const showCorrectSolution = () => {
+        const solution = data.data.pages[state.currentPage].solution;
+
+        const showElementsOnCorrect = solution["solution-correct-show-elements"];
+        if (showElementsOnCorrect) {
+            showElementsOnCorrect
+                .split(/[,\s\/]+/)
+                .filter(e => e)
+                .map(e => e.toString())
+                .forEach(behaviorId => {
+                    const elemIndex = data.data.pages[state.currentPage].elements.findIndex(e => e.behavior.id == behaviorId);
+                    $(`[data-js-element-index="${elemIndex}"]`).css("visibility", "visible");
+                });
+
+        }
     };
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -720,9 +774,6 @@
             ['click', '[data-js-action="mode-set-fullscreen"]', doAlways, fullScreenToggle],
             ['click', '[data-js-action="play-restart"]', doIfPlayMode, playModeReset],
             ['click', '[data-js-action="helper-mode-switch"]', doAlways, helperModeSwitch],
-
-            ['click', '[data-js-action="presentation-create"]', doAlways, dataNew],
-            ['click', '[data-js-action="presentation-edit"]', doAlways, modeStartOff],
 
             ['click', '.element', doIfPlayMode, elementAudioPlay],
             ['click', '.element-sound-icon', doIfEditMode, elementAudioPlay],
@@ -761,8 +812,9 @@
             ['change', '[data-js-action="element-css-value"]', doIfEditMode, elementSetStyle],
             ['change', '[data-js-action="element-css-unit"]', doIfEditMode, elementSetStyle],
 
-            // end-user interactivity
+            // end-user interactivity and solution controls
             ['change', '[data-js-action="behavior-control"]', doIfEditMode, elementSetBehavior],
+            ['change', '[data-js-action="solution-control"]', doIfEditMode, pageSetSolution],
         ];
 
         handlers.forEach(handlerInfo => {
@@ -781,9 +833,15 @@
 
     };
 
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
     //
+    // render edit controls
     //
-    //
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
 
     const renderPagesSummary = () => {
         const div = $('[data-js-target="pages-summary"]');
@@ -829,7 +887,13 @@
 
     };
 
-    const clearElementPropControls = () => {
+    const fillCssFields = () => {
+
+        if (!data.data.pages[state.currentPage]) {
+            return;
+        }
+
+        // first, clear all controls
         $('[data-js-css-prop]').each((index, elem) => {
             const $elem = $(elem);
             if ($elem.attr("type") == "text") {
@@ -850,17 +914,8 @@
         $('[data-js-content="element-sound"]').val("");
         $('[data-js-action="element-image"]').val("");
         $('[data-js-action="element-css-toggle"]').prop("checked", false);
-    };
 
-    const fillCssFields = () => {
-
-        if (!data.data.pages[state.currentPage]) {
-            return;
-        }
-
-        clearElementPropControls();
-
-
+        //
         const element = data.data.pages[state.currentPage].elements[state.currentElement];
 
         if (!element) {
@@ -911,19 +966,17 @@
         $('[data-js-action="element-image"]').val(element.content.image);
     };
 
-    const clearElementBehaviorProps = () => {
+    const fillBehaviorProps = () => {
+
+        // clearing first
         $('[data-js-action="behavior-control"][type="checkbox"]').prop("checked", false);
         $('[data-js-action="behavior-control"][type="text"]').val("");
         $('[data-js-action="behavior-control"][type="number"]').val("");
-    };
 
-    const fillBehaviorProps = () => {
-
+        //
         if (!data.data.pages[state.currentPage]) {
             return;
         }
-
-        clearElementBehaviorProps();
 
         const element = data.data.pages[state.currentPage].elements[state.currentElement];
 
@@ -955,149 +1008,44 @@
         }
     };
 
-    const calcPosition = (positionPx, fullSize, unit) => {
-        switch (unit) {
-            case "%":
-                return parseInt(positionPx / fullSize * 100);
-                break;
-            case "px":
-                return positionPx;
-                break;
-            }
-    };
+    const fillSolutionProps = () => {
 
-    const behaviorAddDraggable = ($div, elemData) => {
-        $div.draggable({
-            start: () => {
-                $div.removeClass("solved-correct")
-                $div.removeClass("solved-wrong")
-            },
-            stop: () => {
-                if (state.modes.edit) {
-                    const $offset = $div.offset();
-                    console.log('drag stop:', $offset);
-
-                    const newLeft = calcPosition($offset.left, $('.content').outerWidth(), $('[data-js-css-unit="left"]').val());
-                    const newTop = calcPosition($offset.top, $('.content').outerHeight(), $('[data-js-css-unit="top"]').val());
-
-                    $('[data-js-css-prop="left"]').val(newLeft).change();
-                    $('[data-js-css-prop="top"]').val(newTop).change();
-                }
-            }
-        });
-    };
-
-    const behaviorAddDroppable = ($div, elemData) => {
-        $div.droppable({
-            drop: (event, ui) => {
-                const droppedElem = ui.draggable[0];
-                const droppedElemIndex = droppedElem.getAttribute("data-js-element-index");
-                if (!droppedElemIndex) {
-                    console.warn("dropped item has no element index. was it from our universe?");
-                    return;
-                }
-                const droppedItemData = data.data.pages[state.currentPage].elements[droppedElemIndex]
-                const droppedElementId = droppedItemData.behavior.id;
-
-                const correctElements = _.get(elemData, "behavior.drag-target", "")
-                    .split(/[^0-9]+/)
-                    .filter(e => e)
-                    .map(e => e.toString());
-                if (correctElements.includes(droppedElementId.toString())) {
-                    $(droppedElem).addClass("solved-correct");
-                } else {
-                    $(droppedElem).addClass("solved-wrong");
-                }
-            },
-        });
-    };
-
-    const renderElement = (elem, index) => {
-        const $div = $("<div>")
-            .attr('data-id', index + "-" + new Date().getTime())
-            .addClass('element')
-            .addClass('element-default')
-            .attr('data-js-element-index', index)
-            ;
-
-        if (elem.content && elem.content.text) {
-            $div.text(elem.content.text);
-        }
-
-        if (elem.content && elem.content.image) {
-            $div.css('background-image', 'url(./media/image/' + elem.content.image + ')');
-        }
-
-        if (elem.style) {
-            for (let prop in elem.style) {
-
-                if (prop == "display" && state.modes.edit) {
-                    $div.addClass('element-hidden');
-                    continue;
-                }
-                $div.css(prop, elem.style[prop]);
-            }
-        }
-
-        if (elem.content.sound) {
-            $div.append('<div class="element-sound-icon fa-solid fa-music"></div>');
-        }
-
-        if (state.modes.edit) {
-            if (index === state.currentElement) {
-                $div.css("outline", "2px red dashed");
-            }
-        }
-
-        if (
-            _.get(elem, "behavior.draggable")
-            ||
-            state.modes.edit // it is much simpler to edit with dragging
-        ) {
-            behaviorAddDraggable($div, elem);
-        };
-
-        if (
-            _.get(elem, "behavior.drag-target")
-        ) {
-            behaviorAddDroppable($div, elem);
-        }
-
-        return $div;
-
-    };
-
-    const renderPage = (targetSelector, pageContent) => {
-
-        if (!pageContent) {
-            console.log("no page content provided")
+        if (!data.data.pages[state.currentPage]) {
             return;
         }
 
-        const $container = $(targetSelector);
-        const metadata = pageContent.metadata;
+        $('[data-js-action="solution-control"][type="checkbox"]').prop("checked", false);
+        $('[data-js-action="solution-control"][type="text"]').val("");
+        $('[data-js-action="solution-control"][type="number"]').val("");
 
-        if (metadata.backgroundImage) {
-            $container.css('background-image', 'url(./media/image/' + metadata.backgroundImage + ')');
-        } else {
-            $container.css('background-image', '');
+        const page = data.data.pages[state.currentPage];
+
+        if (!page) {
+            console.log('no page');
+            return;
         }
-    };
-
-    const renderElements = (targetSelector, pageContent) => {
-
-        if (!pageContent) {
-            console.log("no page content provided")
+        if (!page.solution) {
+            console.warn('page has no solution section');
             return;
         }
 
-        const $content = $(targetSelector);
-        $content.empty();
-        pageContent.elements.forEach((elem, index) => {
-            $content.append(
-                renderElement(elem,index)
-            );
-        });
+        for (let prop in page.solution) {
+
+            const value = page.solution[prop];
+            const propControl = $(`[data-js-solution="${prop}"]`);
+
+            if (!propControl) {
+                console.warn(`Control not found for solution property ${prop}. Property will be removed`);
+                delete(page.solution[prop]);
+                continue;
+            }
+
+            if (propControl.attr("type") == "checkbox") {
+                propControl[0].checked = !! value;
+            } else {
+                propControl.val(value);
+            }
+        }
     };
 
     const fillMediaSelector = (type, selectSelector) => {
@@ -1144,6 +1092,160 @@
         fillMediaSelector('image', '[data-js-content="element-image"]');
     };
 
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // render elements
+    //
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    const calcPosition = (positionPx, fullSize, unit) => {
+        switch (unit) {
+            case "%":
+                return parseInt(positionPx / fullSize * 100);
+                break;
+            case "px":
+                return positionPx;
+                break;
+            }
+    };
+
+    const behaviorAddDraggable = ($div, elemData) => {
+        $div.draggable({
+            start: () => {
+                $div.removeClass("solved-correct")
+                $div.removeClass("solved-wrong")
+            },
+            stop: () => {
+                if (state.modes.edit) {
+                    const $offset = $div.offset();
+                    console.log('drag stop:', $offset);
+
+                    const newLeft = calcPosition($offset.left, $('.content').outerWidth(), $('[data-js-css-unit="left"]').val());
+                    const newTop = calcPosition($offset.top, $('.content').outerHeight(), $('[data-js-css-unit="top"]').val());
+
+                    $('[data-js-css-prop="left"]').val(newLeft).change();
+                    $('[data-js-css-prop="top"]').val(newTop).change();
+                }
+            }
+        });
+    };
+
+    const behaviorAddDroppable = ($div, elemData) => {
+        $div.droppable({
+            drop: (event, ui) => {
+                const droppedElem = ui.draggable[0];
+                const droppedElemIndex = droppedElem.getAttribute("data-js-element-index");
+                if (!droppedElemIndex) {
+                    console.warn("dropped item has no element index. was it from our universe?");
+                    return;
+                }
+                const droppedItemData = data.data.pages[state.currentPage].elements[droppedElemIndex]
+                const droppedElementId = droppedItemData.behavior.id;
+
+                const correctElements = _.get(elemData, "behavior.drag-target", "")
+                    .split(/[,\s\/]+/)
+                    .filter(e => e)
+                    .map(e => e.toString());
+                if (correctElements.includes(droppedElementId.toString())) {
+                    $(droppedElem).addClass("solved-correct");
+                } else {
+                    $(droppedElem).addClass("solved-wrong");
+                }
+            },
+        });
+    };
+
+    const renderElement = (elem, index) => {
+        const $div = $("<div>")
+            .addClass('element')
+            .addClass('element-default')
+            .attr('data-js-element-index', index)
+            ;
+
+        if (elem.content && elem.content.text) {
+            $div.text(elem.content.text);
+        }
+
+        if (elem.content && elem.content.image) {
+            $div.css('background-image', 'url(./media/image/' + elem.content.image + ')');
+        }
+
+        if (elem.style) {
+            for (let prop in elem.style) {
+
+                if (prop == "visibility" && elem.style[prop] == "hidden" && state.modes.edit) {
+                    $div.addClass('element-hidden');
+                    continue;
+                }
+                $div.css(prop, elem.style[prop]);
+            }
+        }
+
+        if (elem.content.sound) {
+            $div.append('<div class="element-sound-icon fa-solid fa-music"></div>');
+        }
+
+        if (state.modes.edit) {
+            if (index === state.currentElement) {
+                $div.css("outline", "2px red dashed");
+            }
+        }
+
+        if (
+            _.get(elem, "behavior.draggable")
+            ||
+            state.modes.edit // it is much simpler to edit with dragging
+        ) {
+            behaviorAddDraggable($div, elem);
+        };
+
+        if (
+            _.get(elem, "behavior.drag-target")
+        ) {
+            behaviorAddDroppable($div, elem);
+        }
+
+        return $div;
+
+    };
+
+    const renderElements = (targetSelector, pageContent) => {
+
+        if (!pageContent) {
+            console.log("no page content provided")
+            return;
+        }
+
+        const $content = $(targetSelector);
+        $content.empty();
+        pageContent.elements.forEach((elem, index) => {
+            $content.append(
+                renderElement(elem,index)
+            );
+        });
+    };
+
+    const renderPage = (targetSelector, pageContent) => {
+
+        if (!pageContent) {
+            console.log("no page content provided")
+            return;
+        }
+
+        const $container = $(targetSelector);
+        const metadata = pageContent.metadata;
+
+        if (metadata.backgroundImage) {
+            $container.css('background-image', 'url(./media/image/' + metadata.backgroundImage + ')');
+        } else {
+            $container.css('background-image', '');
+        }
+    };
+
     const render = () => {
 
         console.log('render');
@@ -1155,6 +1257,7 @@
         fillPagePropControls();
         fillCssFields();
         fillBehaviorProps();
+        fillSolutionProps();
     }
 
     //

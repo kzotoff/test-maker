@@ -32,22 +32,6 @@
         <div class="notifications">
         </div>
 
-        <!--
-        <div class="start-screen">
-            <div class="start-menu">
-                <div class="start-menu-item start-menu-item-hoverable" data-translation-id="start-menu-new" data-js-action="presentation-create">...</div>
-                <div class="start-menu-item start-menu-item-hoverable" data-translation-id="start-menu-continue" data-js-action="presentation-edit">...</div>
-
-                <div class="start-menu-item-hoverable file-input-customizer file-input-for-import">
-                    <label class="start-menu-item" data-translation-id="start-menu-open">...</label>
-                    <form>
-                        <input type="file" data-js-action="presentation-import" />
-                    </form>
-                </div>
-            </div>
-        </div>
-        -->
-
         <div class="audio-overlay">
         </div>
 
@@ -169,7 +153,7 @@
             </div>
 
             <div class="admin-block" data-admin-block-id="design">
-                <div class="admin-block-header"data-translation-id="design-block-header">
+                <div class="admin-block-header" data-translation-id="design-block-header">
                     Design
                 </div>
                 <div class="admin-block-content">
@@ -238,7 +222,7 @@
                     </div>
                     <div class="admin-block-control-group">
                         <label for="data-js-style-hidden" data-translation-id="style-hidden">Hidden</label>
-                        <input id="data-js-style-hidden" type="checkbox" data-js-action="element-css-toggle" data-js-css-prop="display" data-js-css-value="none" />
+                        <input id="data-js-style-hidden" type="checkbox" data-js-action="element-css-toggle" data-js-css-prop="visibility" data-js-css-value="hidden" />
                     </div>
 
 
@@ -246,7 +230,7 @@
             </div>
 
             <div class="admin-block" data-admin-block-id="behavior">
-                <div class="admin-block-header"data-translation-id="behavior-block-header">
+                <div class="admin-block-header" data-translation-id="behavior-block-header">
                     Behavior
                 </div>
                 <div class="admin-block-content">
@@ -284,6 +268,24 @@
 
                 </div>
             </div>
+
+            <div class="admin-block" data-admin-block-id="solution">
+                <div class="admin-block-header" data-translation-id="solution-block-header">
+                    Solution
+                </div>
+                <div class="admin-block-content">
+
+                    <div class="admin-block-control-group">
+                        <label data-translation-id="solution-correct-arrows">Correct arrows number</label>
+                        <input type="number" data-js-action="solution-control" data-js-solution="solution-correct-arrows" />
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label data-translation-id="solution-correct-show-element">Show elements when correct</label>
+                        <input type="text" data-js-action="solution-control" data-js-solution="solution-correct-show-elements" />
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <div data-js-action="arrow-template">
