@@ -48,6 +48,7 @@ const Translator = function() {
             "this-id-is-already-used": "This ID is already used, try another one",
             "solution-block-header": "Solution",
             "solution-correct-arrows": "Correct arrows needed",
+            "solution-correct-movers": "Correct moved elements",
             "solution-correct-show-element": "Show elements when correct",
 
             "-h-button-reset": "Reset presentation and start over. All slides will be deleted, while media library content will remain.",
@@ -101,6 +102,7 @@ const Translator = function() {
             "this-id-is-already-used": "Этот код занят, используйте другой",
             "solution-block-header": "Решение",
             "solution-correct-arrows": "Нужно верных стрелок",
+            "solution-correct-movers": "Нужно верных перемещений",
             "solution-correct-show-element": "При решении показать элементы",
 
 

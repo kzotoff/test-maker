@@ -70,6 +70,7 @@
     const modeEditOn = () => {
         state.modes.edit = true;
         arrowReset();
+        moverReset();
     };
 
     const modeEditOff = () => {
@@ -86,6 +87,7 @@
     const playModeReset = () => {
         console.log('play-reset');
         arrowReset();
+        moverReset();
         render();
     };
 
@@ -488,6 +490,131 @@
     //////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////
     //
+    // mover module
+    //
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    const moverResults = [
+        /*
+        {
+            "element": 1,
+            "target": 2,
+            "isCorrect": true,
+        }
+        */
+    ];
+
+    const calcPosition = (positionPx, fullSize, unit) => {
+        switch (unit) {
+            case "%":
+                return parseInt(positionPx / fullSize * 100);
+                break;
+            case "px":
+                return positionPx;
+                break;
+            }
+    };
+
+    const moverStart = (event) => {
+
+        if (state.modes.edit) {
+            return;
+        }
+
+        const $div = $(event.target);
+        const elementIndex = $div.attr("data-js-element-index");
+
+        $div.removeClass("solved-correct")
+        $div.removeClass("solved-wrong")
+
+        for (let i = moverResults.length - 1; i >= 0; i--) {
+            if (moverResults[i].element == elementIndex) {
+                moverResults.splice(i, 1);
+            }
+        }
+    };
+
+    const moverStop = (event) => {
+
+        const $div = $(event.target);
+        if (state.modes.edit) {
+            const $offset = $div.offset();
+            console.log('drag stop:', $offset);
+
+            const newLeft = calcPosition($offset.left, $('.content').outerWidth(), $('[data-js-css-unit="left"]').val());
+            const newTop = calcPosition($offset.top, $('.content').outerHeight(), $('[data-js-css-unit="top"]').val());
+
+            $('[data-js-css-prop="left"]').val(newLeft).change();
+            $('[data-js-css-prop="top"]').val(newTop).change();
+        }
+
+        checkSolution();
+    };
+
+    const moverCatch = (event) => {
+
+        if (state.modes.edit) {
+            return;
+        }
+
+        const $div = $(event.target);
+        const targetElemIndex = $div.attr('data-js-element-index');
+        const targetElemData = data.data.pages[state.currentPage].elements[targetElemIndex];
+
+
+        const droppedElem = event.originalEvent.target;
+        // const droppedElem = ui.draggable[0];
+        const droppedElemIndex = droppedElem.getAttribute("data-js-element-index");
+        if (!droppedElemIndex) {
+            console.warn("dropped item has no element index. was it from our universe?");
+            return;
+        }
+        const droppedItemData = data.data.pages[state.currentPage].elements[droppedElemIndex]
+        const droppedElementId = droppedItemData.behavior.id;
+
+        const correctElements = _.get(targetElemData, "behavior.drag-target", "")
+            .split(/[,\s\/]+/)
+            .filter(e => e)
+            .map(e => e.toString());
+
+        const isCorrect = correctElements.includes(droppedElementId.toString());
+        if (isCorrect) {
+            $(droppedElem).addClass("solved-correct");
+        } else {
+            $(droppedElem).addClass("solved-wrong");
+        }
+        moverResults.push({
+            "element": droppedElemIndex,
+            "target": targetElemIndex,
+            "isCorrect": isCorrect,
+        });
+        checkSolution();
+    };
+
+    const moverReset = () => {
+        moverResults.length = 0;
+    }
+
+    const behaviorAddDraggable = ($div) => {
+        $div.draggable({
+            start: moverStart,
+            stop: moverStop,
+        });
+    };
+
+    const behaviorAddDroppable = ($div) => {
+        $div.droppable({
+            drop: moverCatch,
+        });
+    };
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //
     // arrows are here
     //
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -675,6 +802,7 @@
         arrowMaker.active = false;
         const svg = $('[data-js-action="arrow-template"] svg');
         svg.css('display', 'none');
+        checkSolution();
     };
 
     const arrowReset = (event) => {
@@ -708,6 +836,10 @@
     };
 
     const checkSolution = () => {
+
+        if (state.modes.edit) {
+            return;
+        }
         setTimeout(doCheckSolution, 10);
     };
 
@@ -721,19 +853,30 @@
             return;
         }
 
-        const arrowsNeeded = solution["solution-correct-arrows"];
-        if (arrowsNeeded) {
-            var arrowsTotal = arrowMaker.existingArrows.length;
-            var arrowsCorrect = arrowMaker.existingArrows.filter(arrow => arrow.isCorrect).length;
+        var arrowsAreCorrect = true;
+        var moversAreCorrect = true;
 
-            if (arrowsTotal == arrowsCorrect && arrowsTotal == arrowsNeeded) {
-                showCorrectSolution();
-            }
+        const arrowsTotal = arrowMaker.existingArrows.length;
+        const arrowsNeeded = parseInt(solution["solution-correct-arrows"] || 0);
+        const arrowsCorrect = arrowMaker.existingArrows.filter(arrow => arrow.isCorrect).length;
+        if (arrowsTotal != arrowsCorrect || arrowsTotal != arrowsNeeded) {
+            arrowsAreCorrect = false;
+        }
+
+        const moversTotal = moverResults.length;
+        const moversNeeded = parseInt(solution["solution-correct-movers"] || 0);
+        const moversCorrect = moverResults.filter(elem => elem.isCorrect).length;
+        if (moversTotal != moversCorrect || moversTotal != moversNeeded) {
+            moversAreCorrect = false;
+        }
+
+        if (arrowsAreCorrect && moversAreCorrect) {
+            indicateCorrectSolution();
         }
     };
 
     // do when solution is correct
-    const showCorrectSolution = () => {
+    const indicateCorrectSolution = () => {
         const solution = data.data.pages[state.currentPage].solution;
 
         const showElementsOnCorrect = solution["solution-correct-show-elements"];
@@ -1102,63 +1245,6 @@
     //////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    const calcPosition = (positionPx, fullSize, unit) => {
-        switch (unit) {
-            case "%":
-                return parseInt(positionPx / fullSize * 100);
-                break;
-            case "px":
-                return positionPx;
-                break;
-            }
-    };
-
-    const behaviorAddDraggable = ($div, elemData) => {
-        $div.draggable({
-            start: () => {
-                $div.removeClass("solved-correct")
-                $div.removeClass("solved-wrong")
-            },
-            stop: () => {
-                if (state.modes.edit) {
-                    const $offset = $div.offset();
-                    console.log('drag stop:', $offset);
-
-                    const newLeft = calcPosition($offset.left, $('.content').outerWidth(), $('[data-js-css-unit="left"]').val());
-                    const newTop = calcPosition($offset.top, $('.content').outerHeight(), $('[data-js-css-unit="top"]').val());
-
-                    $('[data-js-css-prop="left"]').val(newLeft).change();
-                    $('[data-js-css-prop="top"]').val(newTop).change();
-                }
-            }
-        });
-    };
-
-    const behaviorAddDroppable = ($div, elemData) => {
-        $div.droppable({
-            drop: (event, ui) => {
-                const droppedElem = ui.draggable[0];
-                const droppedElemIndex = droppedElem.getAttribute("data-js-element-index");
-                if (!droppedElemIndex) {
-                    console.warn("dropped item has no element index. was it from our universe?");
-                    return;
-                }
-                const droppedItemData = data.data.pages[state.currentPage].elements[droppedElemIndex]
-                const droppedElementId = droppedItemData.behavior.id;
-
-                const correctElements = _.get(elemData, "behavior.drag-target", "")
-                    .split(/[,\s\/]+/)
-                    .filter(e => e)
-                    .map(e => e.toString());
-                if (correctElements.includes(droppedElementId.toString())) {
-                    $(droppedElem).addClass("solved-correct");
-                } else {
-                    $(droppedElem).addClass("solved-wrong");
-                }
-            },
-        });
-    };
-
     const renderElement = (elem, index) => {
         const $div = $("<div>")
             .addClass('element')
@@ -1200,13 +1286,13 @@
             ||
             state.modes.edit // it is much simpler to edit with dragging
         ) {
-            behaviorAddDraggable($div, elem);
+            behaviorAddDraggable($div);
         };
 
         if (
             _.get(elem, "behavior.drag-target")
         ) {
-            behaviorAddDroppable($div, elem);
+            behaviorAddDroppable($div);
         }
 
         return $div;
