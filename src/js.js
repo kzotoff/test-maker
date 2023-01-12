@@ -1030,6 +1030,11 @@
 
         if (elem.style) {
             for (let prop in elem.style) {
+
+                if (prop == "display" && state.modes.edit) {
+                    $div.addClass('element-hidden');
+                    continue;
+                }
                 $div.css(prop, elem.style[prop]);
             }
         }

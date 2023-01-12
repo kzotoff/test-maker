@@ -54,6 +54,10 @@ html {
     z-index: 1;
 }
 
+.element.element-hidden {
+    opacity: 0.32;
+}
+
 .element .element-sound-icon {
     position: absolute;
     top: 0px;
