@@ -304,12 +304,18 @@
     //////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    const pagePrev = () => {
+    const pagePrev = (event) => {
+        if (state.modes.edit && $(event.target).hasClass("element")) {
+            return;
+        }
         state.currentPage = Math.max(state.currentPage - 1, 0);
         state.currentElement = 0;
     };
 
-    const pageNext = () => {
+    const pageNext = (event) => {
+        if (state.modes.edit && $(event.target).hasClass("element")) {
+            return;
+        }
         state.currentPage = Math.min(state.currentPage + 1, data.data.pages.length - 1);
         state.currentElement = 0;
     };
@@ -936,8 +942,8 @@
             // pages
             ['click', '[data-js-action="page-add"]', doIfEditMode, pageAdd],
             ['click', '[data-js-action="page-delete"]', doIfEditMode, pageDelete],
-            ['click', '[data-js-action="page-prev"]', doIfEditMode, pagePrev],
-            ['click', '[data-js-action="page-next"]', doIfEditMode, pageNext],
+            ['click', '[data-js-action="page-prev"]', doAlways, pagePrev],
+            ['click', '[data-js-action="page-next"]', doAlways, pageNext],
             ['click', '[data-js-action="page-background-image"]', doIfEditMode, pageBackground],
 
             // elements
@@ -1112,9 +1118,10 @@
     const fillBehaviorProps = () => {
 
         // clearing first
-        $('[data-js-action="behavior-control"][type="checkbox"]').prop("checked", false);
-        $('[data-js-action="behavior-control"][type="text"]').val("");
-        $('[data-js-action="behavior-control"][type="number"]').val("");
+        $('input[data-js-action="behavior-control"][type="checkbox"]').prop("checked", false);
+        $('input[data-js-action="behavior-control"][type="text"]').val("");
+        $('input[data-js-action="behavior-control"][type="number"]').val("");
+        $('select[data-js-action="behavior-control"]').val("");
 
         //
         if (!data.data.pages[state.currentPage]) {
@@ -1293,6 +1300,12 @@
             _.get(elem, "behavior.drag-target")
         ) {
             behaviorAddDroppable($div);
+        }
+
+        if (
+            _.get(elem, "behavior.on-click")
+        ) {
+            $div.attr("data-js-action", elem.behavior["on-click"]);
         }
 
         return $div;
