@@ -5,6 +5,8 @@
     const defaultState = {
         modes: {
             edit: true,
+            saving: true,
+            loading: true,
         },
         currentPage: 0,
         currentElement: 0,
@@ -77,10 +79,30 @@
         state.modes.edit = false;
     };
 
+    const modeSaveSet= (value) => {
+        if (typeof value === "undefined") {
+            value = !state.modes.saving
+        }
+        state.modes.saving = value;
+        state.modes.loading = false;
+    };
+
+    const modeLoadSet= (value) => {
+        if (typeof value === "undefined") {
+            value = !state.modes.loading
+        }
+        state.modes.loading = value;
+        state.modes.saving = false;
+
+        if (value) {
+            fillJsonSelector();
+        }
+    };
+
     const applyModes = () => {
         const $html = $('html');
         for (let mode in state.modes) {
-            $html.attr(`mode-${mode}`, state.modes[mode] ? "on" : "off");
+            $html.attr(`data-mode-${mode}`, state.modes[mode] ? "on" : "off");
         };
     };
 
@@ -122,6 +144,48 @@
         if (!ok) {
             return;
         }
+    };
+
+    const dataSave = async () => {
+        const content = JSON.stringify(data.data, null, 4);
+        var filename = $('[name="presentation-save-name"]').val().trim();
+
+        if (!filename) {
+            notificator.error(translator.forCode("specify-save-as-name"));
+            return;
+        }
+        filename = filename + ".json";
+
+        const formData = new FormData();
+        formData.append("type", "json");
+        formData.append("file[]", new Blob([content]), filename);
+
+        return Promise.resolve($.ajax({
+            type: 'POST',
+            url: './api/upload.php',
+            data: formData,
+            processData: false,
+            enctype: 'multipart/form-data',
+            contentType: false,
+            success: () => {
+                notificator.info(translator.forCode("saved-as") + ' ' + filename);
+            },
+        }));
+    };
+
+    const dataLoad = async () => {
+        const filename = $('[name="presentation-load-name"]').val();
+
+        return Promise.resolve($.ajax({
+            type: 'GET',
+            url: './media/json/' + filename,
+            contentType: 'text/plain',
+            success: (result) => {
+                console.log('well, got that:', result);
+                data.makeDataFrom(result);
+                render();
+            },
+        }));
     };
 
     const dataExport = async () => {
@@ -933,6 +997,15 @@
             ['mousemove', null, doIfPlayMode, arrowModeDraw],
 
             ['click', '.admin-block-header', doIfEditMode, switchAdminBlockVisible],
+
+            ['click', '[data-js-action="presentation-mode-save"]', doIfEditMode, () => modeSaveSet()],
+            ['click', '[data-js-action="presentation-mode-save-cancel"]', doIfEditMode, () => modeSaveSet(false)],
+            ['click', '[data-js-action="presentation-save-confirm"]', doIfEditMode, dataSave],
+
+            ['click', '[data-js-action="presentation-mode-load"]', doIfEditMode, () => modeLoadSet()],
+            ['click', '[data-js-action="presentation-mode-load-cancel"]', doIfEditMode, () => modeLoadSet(false)],
+            ['click', '[data-js-action="presentation-load-confirm"]', doIfEditMode, dataLoad],
+
             ['click', '[data-js-action="presentation-export"]', doIfEditMode, dataExport],
             ['change', '[data-js-action="presentation-import"]', doIfEditMode, dataImport],
             ['click', '[data-js-action="presentation-reset"]', doIfEditMode, dataReset],
@@ -1240,6 +1313,10 @@
 
     const fillImageSelector = () => {
         fillMediaSelector('image', '[data-js-content="element-image"]');
+    };
+
+     const fillJsonSelector = () => {
+        fillMediaSelector('json', '[data-js-content="presentations"]');
     };
 
     //////////////////////////////////////////////////////////////////////////////////////////

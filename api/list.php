@@ -11,6 +11,10 @@ switch ($_GET["type"]) {
         $extensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
         $working_dir = __DIR__ . "/../media/image/";
     break;
+    case 'json':
+        $extensions = ['json'];
+        $working_dir = __DIR__ . "/../media/json/";
+    break;
 }
 
 $dir = scandir($working_dir);

@@ -11,6 +11,9 @@ switch ($_POST['type']) {
     case "image":
         $target_folder = __DIR__ . "/../media/image/";
         break;
+    case "json":
+        $target_folder = __DIR__ . "/../media/json/";
+        break;
 }
 
 

@@ -50,18 +50,38 @@
                 <div class="admin-block-content">
                     <div class="admin-block-control-group">
                         <button class="admin-control-icon-button fa-solid fa-file" data-js-action="presentation-reset" data-help-id="-h-button-reset"></button>
-                        <button class="admin-control-icon-button fa-solid fa-floppy-disk" data-js-action="presentation-export"></button>
+
+                        <button class="admin-control-icon-button fa-solid fa-floppy-disk" data-js-action="presentation-mode-save"></button>
+                        <button class="admin-control-icon-button fa-solid fa-folder-open" data-js-action="presentation-mode-load"></button>
+
+                        <button class="admin-control-icon-button fa-solid fa-file-arrow-down" title="export" data-js-action="presentation-export"></button>
 
                         <div class="file-input-customizer file-input-for-import">
                             <label>
-                                <button class="admin-control-icon-button fa-solid fa-folder-open"></button>
+                                <button class="admin-control-icon-button fa-solid fa-file-arrow-up"></button>
                             </label>
                             <form>
                                 <input type="file" data-js-action="presentation-import" />
                             </form>
                         </div>
+
                         <button class="admin-control-icon-button fa-solid fa-trash-can" data-js-action="media-empty"></button>
                         <button class="admin-control-icon-button fa-solid fa-circle-question" data-js-action="helper-mode-switch"></button>
+                    </div>
+
+                    <div class="admin-block-control-group admin-block-control-group-popup" data-show-for-mode="saving">
+                        <label data-translation-id="save-as">Save as</label>
+                        <input type="text" name="presentation-save-name" />
+                        <button class="admin-control-icon-button fa-solid fa-check" data-js-action="presentation-save-confirm"></button>
+                        <button class="admin-control-icon-button fa-solid fa-xmark" data-js-action="presentation-mode-save-cancel"></button>
+                    </div>
+
+                    <div class="admin-block-control-group admin-block-control-group-popup" data-show-for-mode="loading">
+                        <label data-translation-id="load-as">Load</label>
+                        <select name="presentation-load-name" data-js-content="presentations">
+                        </select>
+                        <button class="admin-control-icon-button fa-solid fa-check" data-js-action="presentation-load-confirm"></button>
+                        <button class="admin-control-icon-button fa-solid fa-xmark" data-js-action="presentation-mode-load-cancel"></button>
                     </div>
                 </div>
             </div>

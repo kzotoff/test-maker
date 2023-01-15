@@ -54,6 +54,10 @@ const Translator = function() {
             "solution-correct-arrows": "Correct arrows needed",
             "solution-correct-movers": "Correct moved elements",
             "solution-correct-show-element": "Show elements when correct",
+            "save-as": "Save as",
+            "saved-as": "Saved as",
+            "load-as": "Load",
+            "specify-save-as-name": "Specify name",
 
             "-h-button-reset": "Reset presentation and start over. All slides will be deleted, while media library content will remain.",
             "-h-behavior-arrow-max-count-from": "Maximum arrow count which can start from this element.",
@@ -112,7 +116,10 @@ const Translator = function() {
             "solution-correct-arrows": "Нужно верных стрелок",
             "solution-correct-movers": "Нужно верных перемещений",
             "solution-correct-show-element": "При решении показать элементы",
-
+            "save-as": "Сохранить как:",
+            "saved-as": "Сохранено как",
+            "load-as": "Загрузить:",
+            "specify-save-as-name": "Укажите имя",
 
             "-h-button-reset": "Очистить презентацию и начать заново. Изображения и звуки останутся.",
             "-h-behavior-arrow-max-count-from": "Максимальное количество стрелок, которые могут начинаться на элементе.",
