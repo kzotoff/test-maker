@@ -5,8 +5,8 @@
     const defaultState = {
         modes: {
             edit: true,
-            saving: true,
-            loading: true,
+            saving: false,
+            loading: false,
         },
         currentPage: 0,
         currentElement: 0,
