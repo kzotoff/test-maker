@@ -176,6 +176,10 @@
     const dataLoad = async () => {
         const filename = $('[name="presentation-load-name"]').val();
 
+        if (!filename) {
+            return;
+        }
+
         return Promise.resolve($.ajax({
             type: 'GET',
             url: './media/json/' + filename,
