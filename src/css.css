@@ -217,10 +217,10 @@ html .admin-block-control-group-popup label {
     position: relative;
 }
 
-html[data-mode-saving="off"] [data-show-for-mode="saving"] {
+html:not([data-mode-saving="on"]) [data-show-for-mode="saving"] {
     display: none;
 }
-html[data-mode-loading="off"] [data-show-for-mode="loading"] {
+html:not([data-mode-loading="on"]) [data-show-for-mode="loading"] {
     display: none;
 }
 
