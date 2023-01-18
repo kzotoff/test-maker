@@ -1,0 +1,16 @@
+.helper-container {
+    position: fixed;
+    left: 10px;
+    top: 10px;
+    max-width: 400px;
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px #ccc solid;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.21);
+}
+
+html.helper-on [data-help-id] {
+    /* outline: 1px #0a4 solid !important; */
+    box-shadow: 0 0 5px 0 rgba(0, 120, 20, 1);
+    user-select: none;
+}
