@@ -1,174 +1,341 @@
-"use strict";
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-const Translator = function() {
+        <link rel="stylesheet" href="./lib/fontawesome/css/all.css" />
+        <link rel="shortcut icon" href="./favicon.ico">
+        <script src="./lib/jquery/jquery.js"></script>
+        <script src="./lib/jquery-ui/jquery-ui.min.js"></script>
+        <script src="./lib/jquery-ui/jquery.ui.touch-punch-board.js"></script>
+        <script src="./lib/lodash/lodash-full.js"></script>
+        <script src="./lib/mobx/mobx.umd.production.min.js"></script>
+        <script src="./lib/zip/zip.js"></script>
 
-    this.translations = {
-        "en": {
-            "presentation-block-header": "Presentation",
-            "media-block-header": "Media",
-            "add-sound": "Add sound",
-            "add-image": "Add image",
-            "pages-block-header": "Pages",
-            "elements-block-header": "Elements",
-            "content-block-header": "Content",
-            "content-text": "Text",
-            "content-sound": "Sound",
-            "content-image": "Image",
-            "design-block-header": "Design",
-            "style-font-bold": "Bold",
-            "style-hidden": "Hidden",
-            "css-prop-left": "Left",
-            "css-prop-top": "Top",
-            "css-prop-width": "Width",
-            "css-prop-height": "Height",
-            "css-prop-border-radius": "Corners radius",
-            "css-prop-color": "Color",
-            "css-prop-font-size": "Font size",
-            "css-prop-background-color": "Background color",
-            "css-prop-border-color": "Border color",
-            "files-uploaded-ok": "Files uploaded successfully",
-            "import-ok": "Import successful",
-            "page-properties-block-header": "Page properties",
-            "page-background-image": "Background image",
-            "media-empty-confirmation": "Delete all media files?",
-            "media-storage-cleared": "Media storage cleared",
-            "new-element-text": "Hello, world!",
-            "reset-confirmation": "Everything will be cleared. Are you sure?",
-            "start-menu-new": "Create",
-            "start-menu-continue": "Continue edit",
-            "start-menu-open": "Open",
-            "behavior-block-header": "Behavior",
-            "behavior-id": "ID",
-            "behavior-draggable": "Draggable",
-            "behavior-drag-target": "Drag target for",
-            "behavior-arrow-start": "Can start arrow",
-            "behavior-arrow-end": "Arrow end for",
-            "behavior-arrow-max-count-from": "Max arrow count from",
-            "behavior-arrow-max-count-to": "Max arrow count to",
-            "behavior-on-click": "On click action",
-            "action-previous-page": "Show previous page",
-            "action-next-page": "Show next page",
-            "action-play-restart": "Start again",
-            "this-id-is-already-used": "This ID is already used, try another one",
-            "solution-block-header": "Solution",
-            "solution-correct-arrows": "Correct arrows needed",
-            "solution-correct-movers": "Correct moved elements",
-            "solution-correct-show-element": "Show elements when correct",
-            "save-as": "Save as",
-            "saved-as": "Saved as",
-            "load-as": "Load",
-            "specify-save-as-name": "Specify name",
+        <link rel="stylesheet" href="./lib/jquery-ui/jquery-ui.min.css" />
+        <link rel="stylesheet" href="./src/css.css" />
+        <link rel="stylesheet" href="./src/helpManager.css" />
+        <link rel="stylesheet" href="./src/notificator.css" />
+        <script src="./src/PresentationData.js"></script>
+        <script src="./src/Translator.js"></script>
+        <script src="./src/Notificator.js"></script>
+        <script src="./src/StateManager.js"></script>
+        <script src="./src/HelpManager.js"></script>
+        <script src="./src/js.js"></script>
+    </head>
+    <body>
 
-            "-h-button-reset": "Reset presentation and start over. All slides will be deleted, while media library content will remain.",
-            "-h-behavior-arrow-max-count-from": "Maximum arrow count which can start from this element.",
-            "-h-behavior-arrow-max-count-to": "Maximum arrow count which can end at this element.",
-            "-h-mode-set-edit": "Edit test",
-            "-h-mode-set-play": "Play the test",
-            "-h-play-restart": "Restart test",
-            "-h-mode-set-fullscreen": "Fullscreen mode (F11)",
-        },
+        <div class="content">
+        </div>
+
+        <div class="notifications">
+        </div>
+
+        <div class="audio-overlay">
+        </div>
+
+        <div class="mode-controls">
+            <button class="mode-control-button fa-solid fa-pen-to-square" data-visible-play-only data-help-id="-h-mode-set-edit" data-js-action="mode-set-edit"></button>
+            <button class="mode-control-button fa-solid fa-play" data-visible-edit-only data-help-id="-h-mode-set-play" data-js-action="mode-set-play"></button>
+            <button class="mode-control-button fa-solid fa-rotate" data-visible-play-only data-help-id="-h-play-restart" data-js-action="play-restart"></button>
+            <button class="mode-control-button fa-solid fa-expand" data-help-id="-h-mode-set-fullscreen" data-js-action="mode-set-fullscreen"></button>
+        </div>
+        <div class="admin" data-visible-edit-only>
+
+            <div class="admin-block" data-admin-block-id="general">
+                <div class="admin-block-header" data-translation-id="presentation-block-header">
+                    Presentation
+                </div>
+                <div class="admin-block-content">
+                    <div class="admin-block-control-group">
+                        <button class="admin-control-icon-button fa-solid fa-file" data-js-action="presentation-reset" data-help-id="-h-button-reset"></button>
+
+                        <button class="admin-control-icon-button fa-solid fa-floppy-disk" data-js-action="presentation-mode-save"></button>
+                        <button class="admin-control-icon-button fa-solid fa-folder-open" data-js-action="presentation-mode-load"></button>
+
+                        <button class="admin-control-icon-button fa-solid fa-file-arrow-down" title="export" data-js-action="presentation-export"></button>
+
+                        <div class="file-input-customizer file-input-for-import">
+                            <label>
+                                <button class="admin-control-icon-button fa-solid fa-file-arrow-up"></button>
+                            </label>
+                            <form>
+                                <input type="file" data-js-action="presentation-import" />
+                            </form>
+                        </div>
+
+                        <button class="admin-control-icon-button fa-solid fa-trash-can" data-js-action="media-empty"></button>
+                        <button class="admin-control-icon-button fa-solid fa-circle-question" data-js-action="helper-mode-switch"></button>
+                    </div>
+
+                    <div class="admin-block-control-group admin-block-control-group-popup" data-show-for-mode="saving">
+                        <label data-translation-id="save-as">Save as</label>
+                        <input type="text" name="presentation-save-name" />
+                        <button class="admin-control-icon-button fa-solid fa-check" data-js-action="presentation-save-confirm"></button>
+                        <button class="admin-control-icon-button fa-solid fa-xmark" data-js-action="presentation-mode-save-cancel"></button>
+                    </div>
+
+                    <div class="admin-block-control-group admin-block-control-group-popup" data-show-for-mode="loading">
+                        <label data-translation-id="load-as">Load</label>
+                        <select name="presentation-load-name" data-js-content="presentations">
+                        </select>
+                        <button class="admin-control-icon-button fa-solid fa-check" data-js-action="presentation-load-confirm"></button>
+                        <button class="admin-control-icon-button fa-solid fa-xmark" data-js-action="presentation-mode-load-cancel"></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-block" data-admin-block-id="media">
+                <div class="admin-block-header" data-translation-id="media-block-header">
+                    Media
+                </div>
+                <div class="admin-block-content">
+                    <div class="admin-block-control-group admin-block-control-group-vertical file-input-customizer">
+                        <label data-translation-id="add-sound">Add sound</label>
+                        <form>
+                            <input type="hidden" name="type" value="sound" />
+                            <input type="file" name="file[]" data-js-action="media-upload" multiple="multiple" />
+                        </form>
+                    </div>
+                    <div class="admin-block-control-group admin-block-control-group-vertical file-input-customizer">
+                        <label data-translation-id="add-image">Add image</label>
+                        <form>
+                            <input type="hidden" name="type" value="image" />
+                            <input type="file" name="file[]" data-js-action="media-upload" multiple="multiple" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-block" data-admin-block-id="pages">
+                <div class="admin-block-header">
+                    <span data-translation-id="pages-block-header">Pages</span>
+                    &nbsp;
+                    <span data-js-target="pages-summary"></span>
+                </div>
+                <div class="admin-block-content">
+                    <div class="admin-block-control-group">
+                        <button class="admin-control-icon-button fa-solid fa-plus" data-js-action="page-add"></button>
+                        <button class="admin-control-icon-button fa-solid fa-minus" data-js-action="page-delete"></button>
+                        <button class="admin-control-icon-button fa-solid fa-arrow-left" data-js-action="page-prev"></button>
+                        <button class="admin-control-icon-button fa-solid fa-arrow-right" data-js-action="page-next"></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-block" data-admin-block-id="page-properties">
+                <div class="admin-block-header">
+                    <span data-translation-id="page-properties-block-header">Page properties</span>
+                </div>
+                <div class="admin-block-content">
+                    <div class="admin-block-control-group admin-block-control-group-vertical">
+                        <label data-translation-id="page-background-image">Image</label>
+                        <select data-js-content="element-image" data-js-action="page-background-image"></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-block" data-admin-block-id="elements">
+                <div class="admin-block-header">
+                    <span data-translation-id="elements-block-header">Elements</span>
+                    &nbsp;
+                    <span data-js-target="elements-summary"></span>
+                </div>
+                <div class="admin-block-content">
+                    <div class="admin-block-control-group">
+                        <button class="admin-control-icon-button fa-solid fa-plus" data-js-action="element-add"></button>
+                        <button class="admin-control-icon-button fa-solid fa-minus" data-js-action="element-delete"></button>
+                        <button class="admin-control-icon-button fa-solid fa-arrow-left" data-js-action="element-prev"></button>
+                        <button class="admin-control-icon-button fa-solid fa-arrow-right" data-js-action="element-next"></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-block" data-admin-block-id="content">
+                <div class="admin-block-header" data-translation-id="content-block-header">
+                    Content
+                </div>
+                <div class="admin-block-content">
+                    <div class="admin-block-control-group admin-block-control-group-vertical">
+                        <label data-translation-id="content-text">Text</label>
+                        <textarea data-js-content="element-text"></textarea>
+                    </div>
+                    <div class="admin-block-control-group admin-block-control-group-vertical">
+                        <label data-translation-id="content-sound">Sound</label>
+                        <select data-js-content="element-sound"></select>
+                    </div>
+                    <div class="admin-block-control-group admin-block-control-group-vertical">
+                        <label data-translation-id="content-image">Image</label>
+                        <select data-js-content="element-image" data-js-action="element-image"></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-block" data-admin-block-id="design">
+                <div class="admin-block-header" data-translation-id="design-block-header">
+                    Design
+                </div>
+                <div class="admin-block-content">
+                    <div class="admin-block-control-group">
+                        <label data-translation-id="css-prop-left">Left</label>
+                        <input type="number" data-js-css-prop="left" data-js-action="element-css-value">
+                        <select data-js-css-unit="left" data-js-action="element-css-unit">
+                            <option value="%">%</option>
+                            <option value="px">px</option>
+                        </select>
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label data-translation-id="css-prop-top">Top</label>
+                        <input type="number" data-js-css-prop="top" data-js-action="element-css-value">
+                        <select data-js-css-unit="top" data-js-action="element-css-unit">
+                            <option value="%">%</option>
+                            <option value="px">px</option>
+                        </select>
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label data-translation-id="css-prop-width">Width</label>
+                        <input type="number" data-js-css-prop="width" data-js-action="element-css-value">
+                        <select data-js-css-unit="width" data-js-action="element-css-unit">
+                            <option value="%">%</option>
+                            <option value="px">px</option>
+                        </select>
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label data-translation-id="css-prop-height">Height</label>
+                        <input type="number" data-js-css-prop="height" data-js-action="element-css-value">
+                        <select data-js-css-unit="height" data-js-action="element-css-unit">
+                            <option value="%">%</option>
+                            <option value="px">px</option>
+                        </select>
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label data-translation-id="css-prop-border-radius">Corner radius</label>
+                        <input type="number" data-js-css-prop="border-radius" data-js-action="element-css-value">
+                        <select data-js-css-unit="border-radius" data-js-action="element-css-unit">
+                            <option value="%">%</option>
+                            <option value="px">px</option>
+                        </select>
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label data-translation-id="css-prop-font-size">Font size</label>
+                        <input type="number" data-js-css-prop="font-size" data-js-action="element-css-value">
+                        <select data-js-css-unit="font-size" data-js-action="element-css-unit">
+                            <option value="px">px</option>
+                        </select>
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label for="data-js-style-bold" data-translation-id="style-font-bold">Bold font</label>
+                        <input id="data-js-style-bold" type="checkbox" data-js-action="element-css-toggle" data-js-css-prop="font-weight" data-js-css-value="bold" />
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label data-translation-id="css-prop-color">Color</label>
+                        <input type="color" data-js-css-prop="color" data-js-action="element-css-value">
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label data-translation-id="css-prop-background-color">Background color</label>
+                        <input type="color" data-js-css-prop="background-color" data-js-action="element-css-value">
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label data-translation-id="css-prop-border-color">Border color</label>
+                        <input type="color" data-js-css-prop="border-color" data-js-action="element-css-value">
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label for="data-js-style-hidden" data-translation-id="style-hidden">Hidden</label>
+                        <input id="data-js-style-hidden" type="checkbox" data-js-action="element-css-toggle" data-js-css-prop="visibility" data-js-css-value="hidden" />
+                    </div>
 
 
-        "ru": {
-            "presentation-block-header": "Файл",
-            "media-block-header": "Изображения и звуки",
-            "add-sound": "Добавить звук",
-            "add-image": "Добавить изображение",
-            "pages-block-header": "Слайды",
-            "elements-block-header": "Элементы",
-            "content-block-header": "Содержимое элемента",
-            "content-text": "Текст",
-            "content-sound": "Звук",
-            "content-image": "Изображение",
-            "design-block-header": "Стиль",
-            "style-font-bold": "Жирный",
-            "style-hidden": "Скрытый",
-            "css-prop-left": "По горизонтали",
-            "css-prop-top": "По вертикали",
-            "css-prop-width": "Ширина",
-            "css-prop-height": "Высота",
-            "css-prop-border-radius": "Скругление углов",
-            "css-prop-color": "Цвет текста",
-            "css-prop-font-size": "Размер текста",
-            "css-prop-background-color": "Цвет фона",
-            "css-prop-border-color": "Цвет рамки",
-            "files-uploaded-ok": "Файлы загружены",
-            "import-ok": "Презентация загружена",
-            "page-properties-block-header": "Параметры слайда",
-            "page-background-image": "Фоновое изображение",
-            "media-empty-confirmation": "Удалить звуки и изображения?",
-            "media-storage-cleared": "Хранилище файлов очищено",
-            "new-element-text": "Привет!",
-            "reset-confirmation": "Всё содержимое будет удалено. Продолжить?",
-            "start-menu-new": "Создать",
-            "start-menu-continue": "Продолжить",
-            "start-menu-open": "Открыть",
-            "behavior-block-header": "Поведение",
-            "behavior-id": "Код",
-            "behavior-draggable": "Можно двигать",
-            "behavior-drag-target": "Цель для кодов",
-            "behavior-arrow-start": "Начало стрелки",
-            "behavior-arrow-end": "Окончание стрелки для кодов",
-            "behavior-arrow-max-count-from": "Макс. кол-во стрелок отсюда",
-            "behavior-arrow-max-count-to": "Макс. кол-во стрелок сюда",
-            "behavior-on-click": "При нажатии",
-            "action-previous-page": "Предыдущая страница",
-            "action-next-page": "Следующая страница",
-            "action-play-restart": "Начать заново",
-            "this-id-is-already-used": "Этот код занят, используйте другой",
-            "solution-block-header": "Решение",
-            "solution-correct-arrows": "Нужно верных стрелок",
-            "solution-correct-movers": "Нужно верных перемещений",
-            "solution-correct-show-element": "При решении показать элементы",
-            "save-as": "Сохранить как:",
-            "saved-as": "Сохранено как",
-            "load-as": "Загрузить:",
-            "specify-save-as-name": "Укажите имя",
+                </div>
+            </div>
 
-            "-h-button-reset": "Очистить презентацию и начать заново. Изображения и звуки останутся.",
-            "-h-behavior-arrow-max-count-from": "Максимальное количество стрелок, которые могут начинаться на элементе.",
-            "-h-behavior-arrow-max-count-to": "Максимальное количество стрелок, которые могут заканчиваться на элементе.",
-            "-h-mode-set-edit": "Режим редактирования",
-            "-h-mode-set-play": "Режим тестирования",
-            "-h-play-restart": "Начать заново",
-            "-h-mode-set-fullscreen": "Полноэкранный режим (F11)",
+            <div class="admin-block" data-admin-block-id="behavior">
+                <div class="admin-block-header" data-translation-id="behavior-block-header">
+                    Behavior
+                </div>
+                <div class="admin-block-content">
 
-        },
-    };
+                    <div class="admin-block-control-group">
+                        <label data-translation-id="behavior-id">ID</label>
+                        <input type="text" data-js-action="behavior-control" data-js-behavior="id">
+                    </div>
 
-    this.getLangPack = (forceLang) => {
-        return (
-            this.translations[forceLang]
-            ||
-            this.translations[navigator.language]
-            ||
-            this.translations[navigator.language.substr(0, 2)]
-            ||
-            this.translations[Object.keys(this.translations)[0]]
-        );
-    };
+                    <div class="admin-block-control-group">
+                        <label for="data-js-content-draggable" data-translation-id="behavior-draggable">Draggable</label>
+                        <input id="data-js-content-draggable" type="checkbox" data-js-action="behavior-control" data-js-behavior="draggable">
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label data-translation-id="behavior-drag-target">Drag target for</label>
+                        <input type="text" data-js-action="behavior-control" data-js-behavior="drag-target">
+                    </div>
 
-    this.forCode = (code) => {
-        return (
-            this.activeLangpack[code]
-            ||
-            this.translations[Object.keys(this.translations)[0]][code]
-        );
-    };
+                    <div class="admin-block-control-group">
+                        <label for="data-js-content-arrow-start" data-translation-id="behavior-arrow-start">Arrow start</label>
+                        <input id="data-js-content-arrow-start" type="checkbox" data-js-action="behavior-control" data-js-behavior="arrow-start">
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label data-translation-id="behavior-arrow-end">Arrow end for</label>
+                        <input type="text" data-js-action="behavior-control" data-js-behavior="arrow-end-for">
+                    </div>
+                    <div class="admin-block-control-group" data-help-id="-h-behavior-arrow-max-count-from">
+                        <label data-translation-id="behavior-arrow-max-count-from">Max arrow count from</label>
+                        <input type="text" data-js-action="behavior-control" data-js-behavior="arrow-max-count-from">
+                    </div>
+                    <div class="admin-block-control-group" data-help-id="-h-behavior-arrow-max-count-to">
+                        <label data-translation-id="behavior-arrow-max-count-to">Max arrow count to</label>
+                        <input type="text" data-js-action="behavior-control" data-js-behavior="arrow-max-count-to">
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label data-translation-id="behavior-on-click">On click</label>
+                        <select data-js-action="behavior-control" data-js-behavior="on-click">
+                            <option value="">-</option>
+                            <option value="page-prev" data-translation-id="action-previous-page">Show previous page</option>
+                            <option value="page-next" data-translation-id="action-next-page">Show next page</option>
+                            <option value="play-restart" data-translation-id="action-play-restart">Start again</option>
+                        </select>
+                    </div>
 
-    this.activeLangpack = this.getLangPack(localStorage.getItem("forceLang"));
-    console.log(`translator ready. set localStorage:forceLang to override. locales supported: ${Object.keys(this.translations).join(',')}`);
 
-    this.applyAuto = () => {
-        document.querySelectorAll('[data-translation-id]').forEach((elem) => {
-            const code = elem.getAttribute('data-translation-id');
-            const translatedText = this.forCode(code);
-            if (translatedText) {
-                elem.innerText = translatedText;
-            } else {
-                console.warn('no translation for ' + elem.getAttribute('data-translation-id'))
-            }
-        });
-    };
+                </div>
+            </div>
 
-}
+            <div class="admin-block" data-admin-block-id="solution">
+                <div class="admin-block-header" data-translation-id="solution-block-header">
+                    Solution
+                </div>
+                <div class="admin-block-content">
+
+                    <div class="admin-block-control-group">
+                        <label data-translation-id="solution-correct-arrows">Correct arrows number</label>
+                        <input type="number" data-js-action="solution-control" data-js-solution="solution-correct-arrows" />
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label data-translation-id="solution-correct-movers">Correct moved elements</label>
+                        <input type="number" data-js-action="solution-control" data-js-solution="solution-correct-movers" />
+                    </div>
+                    <div class="admin-block-control-group">
+                        <label data-translation-id="solution-correct-show-element">Show elements when correct</label>
+                        <input type="text" data-js-action="solution-control" data-js-solution="solution-correct-show-elements" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div data-js-action="arrow-template">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 350 100" style="display: none; z-index: 99; pointer-events: none;">
+                <defs>
+                    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                        <polygon points="0 0, 8 3, 0 6" fill="#888" />
+                    </marker>
+                </defs>
+                <line x1="0" y1="50" x2="250" y2="50" stroke="#888" stroke-width="2" marker-end="url(#arrowhead)" />
+            </svg>
+        </div>
+
+        <div data-js-action="existing-arrows">
+
+        </div>
+
+    </body>
+</html>
