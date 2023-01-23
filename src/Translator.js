@@ -62,6 +62,10 @@ const Translator = function() {
             "-h-button-reset": "Reset presentation and start over. All slides will be deleted, while media library content will remain.",
             "-h-behavior-arrow-max-count-from": "Maximum arrow count which can start from this element.",
             "-h-behavior-arrow-max-count-to": "Maximum arrow count which can end at this element.",
+            "-h-mode-set-edit": "Edit test",
+            "-h-mode-set-play": "Play the test",
+            "-h-play-restart": "Restart test",
+            "-h-mode-set-fullscreen": "Fullscreen mode (F11)",
         },
 
 
@@ -124,6 +128,10 @@ const Translator = function() {
             "-h-button-reset": "Очистить презентацию и начать заново. Изображения и звуки останутся.",
             "-h-behavior-arrow-max-count-from": "Максимальное количество стрелок, которые могут начинаться на элементе.",
             "-h-behavior-arrow-max-count-to": "Максимальное количество стрелок, которые могут заканчиваться на элементе.",
+            "-h-mode-set-edit": "Режим редактирования",
+            "-h-mode-set-play": "Режим тестирования",
+            "-h-play-restart": "Начать заново",
+            "-h-mode-set-fullscreen": "Полноэкранный режим (F11)",
 
         },
     };
