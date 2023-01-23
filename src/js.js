@@ -169,6 +169,7 @@
             contentType: false,
             success: () => {
                 notificator.info(translator.forCode("saved-as") + ' ' + filename);
+                modeSaveSet(false);
             },
         }));
     };
@@ -185,7 +186,9 @@
             url: './media/json/' + filename,
             contentType: 'text/plain',
             success: (result) => {
+                notificator.info(translator.forCode("presentation-loaded"));
                 console.log('well, got that:', result);
+                modeLoadSet(false);
                 data.makeDataFrom(result);
                 render();
             },

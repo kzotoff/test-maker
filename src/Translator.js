@@ -57,6 +57,7 @@ const Translator = function() {
             "save-as": "Save as",
             "saved-as": "Saved as",
             "load-as": "Load",
+            "presentation-loaded": "Loaded",
             "specify-save-as-name": "Specify name",
 
             "-h-button-reset": "Reset presentation and start over. All slides will be deleted, while media library content will remain.",
@@ -123,6 +124,7 @@ const Translator = function() {
             "save-as": "Сохранить как:",
             "saved-as": "Сохранено как",
             "load-as": "Загрузить:",
+            "presentation-loaded": "Загружено",
             "specify-save-as-name": "Укажите имя",
 
             "-h-button-reset": "Очистить презентацию и начать заново. Изображения и звуки останутся.",
