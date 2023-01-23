@@ -803,7 +803,7 @@
         }
 
         // first, just get source and target elements
-        const targetElementIndex = event.target.getAttribute("data-js-element-index");
+        var targetElementIndex = event.target.getAttribute("data-js-element-index");
         if (!targetElementIndex) {
             console.warn("element has no index, strange");
         }
@@ -812,7 +812,36 @@
         const sourceElementBehaviorId = _.get(sourceElement, "behavior.id");
 
         if (sourceElementIndex == targetElementIndex) {
-            return;
+
+// IQ board patch start
+//
+//
+
+const endX = event.pageX;
+const endY = event.pageY;
+
+$('.element').each((index, elem) => {
+
+    if (
+        endX > elem.offsetLeft && endX < elem.offsetLeft + elem.offsetWidth
+        &&
+        endY > elem.offsetTop  && endY < elem.offsetTop + elem.offsetHeight
+    ) {
+        targetElementIndex = index;
+        console.log('found another arrow target: ', elem);
+    }
+
+});
+
+if (sourceElementIndex == targetElementIndex) {
+    console.log('source and target for the arrow are the same, skipping');
+    return;
+}
+
+//
+//
+// IQ board patch end
+
         }
 
         const targetElement = data.data.pages[state.currentPage].elements[targetElementIndex];
@@ -995,10 +1024,16 @@
             ['click', '.element', doIfPlayMode, elementAudioPlay],
             ['click', '.element-sound-icon', doIfEditMode, elementAudioPlay],
             ['click', '.audio-overlay', doAlways, elementAudioStop],
+
             ['mousedown', '.element', doIfPlayMode, arrowModeBegin],
             ['mouseup', '.element', doIfPlayMode, arrowModeCatch],
             ['mouseup', null, doIfPlayMode, arrowModeEnd],
             ['mousemove', null, doIfPlayMode, arrowModeDraw],
+
+            ['pointerdown', '.element', doIfPlayMode, arrowModeBegin],
+            ['pointerup', '.element', doIfPlayMode, arrowModeCatch],
+            ['pointerup', null, doIfPlayMode, arrowModeEnd],
+            ['pointermove', null, doIfPlayMode, arrowModeDraw],
 
             ['click', '.admin-block-header', doIfEditMode, switchAdminBlockVisible],
 

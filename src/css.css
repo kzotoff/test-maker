@@ -49,6 +49,7 @@ html {
     user-select: none;
     z-index: 0;
     padding-bottom: 3px; /* nasty hack for vertical text alignment */
+    touch-action: none;
 }
 .element-default.ui-draggable {
     z-index: 1;
