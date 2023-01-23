@@ -79,7 +79,7 @@
         state.modes.edit = false;
     };
 
-    const modeSaveSet= (value) => {
+    const modeSaveSet = (value) => {
         if (typeof value === "undefined") {
             value = !state.modes.saving
         }
@@ -87,7 +87,7 @@
         state.modes.loading = false;
     };
 
-    const modeLoadSet= (value) => {
+    const modeLoadSet = (value) => {
         if (typeof value === "undefined") {
             value = !state.modes.loading
         }
