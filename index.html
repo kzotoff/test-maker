@@ -12,8 +12,10 @@
         <script src="./lib/lodash/lodash-full.js"></script>
         <script src="./lib/mobx/mobx.umd.production.min.js"></script>
         <script src="./lib/zip/zip.js"></script>
+        <script src="./lib/jquery.minicolors/jquery.minicolors.js"></script>
 
         <link rel="stylesheet" href="./lib/jquery-ui/jquery-ui.min.css" />
+        <link rel="stylesheet" href="./lib/jquery.minicolors/jquery.minicolors.css" />
         <link rel="stylesheet" href="./src/css.css" />
         <link rel="stylesheet" href="./src/helpManager.css" />
         <link rel="stylesheet" href="./src/notificator.css" />
@@ -230,15 +232,15 @@
                     </div>
                     <div class="admin-block-control-group">
                         <label data-translation-id="css-prop-color">Color</label>
-                        <input type="color" data-js-css-prop="color" data-js-action="element-css-value">
+                        <input class="color-minicolor" type="text" data-js-css-prop="color" data-js-action="element-css-value">
                     </div>
                     <div class="admin-block-control-group">
                         <label data-translation-id="css-prop-background-color">Background color</label>
-                        <input type="color" data-js-css-prop="background-color" data-js-action="element-css-value">
+                        <input class="color-minicolor" type="text" data-js-css-prop="background-color" data-js-action="element-css-value">
                     </div>
                     <div class="admin-block-control-group">
                         <label data-translation-id="css-prop-border-color">Border color</label>
-                        <input type="color" data-js-css-prop="border-color" data-js-action="element-css-value">
+                        <input class="color-minicolor" type="text" data-js-css-prop="border-color" data-js-action="element-css-value">
                     </div>
                     <div class="admin-block-control-group">
                         <label for="data-js-style-hidden" data-translation-id="style-hidden">Hidden</label>

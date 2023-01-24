@@ -483,6 +483,8 @@
         } else {
             let propUnit = $('[data-js-css-unit="' + prop + '"]').val();
             let propValue = propControl.val() + (propUnit ? propUnit : "");
+
+            console.log(prop, propValue);
             element.style[prop] = propValue;
         }
 
@@ -1201,10 +1203,11 @@ if (sourceElementIndex == targetElementIndex) {
                 continue;
             }
 
-            // check if it is color
-            if (value.match(/#[0-9a-f]{3}([0-9a-f]{3})?/)) {
-                // console.log(prop, 'color', value);
+            // check if it is hex color
+            if (value.match(/^#[0-9a-f]{3,8}$/)) {
+                console.log(prop, 'rgba color', value);
                 styleControl.val(value);
+                initMiniColors(styleControl);
                 continue;
             }
 
@@ -1365,6 +1368,46 @@ if (sourceElementIndex == targetElementIndex) {
     //////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////
     //
+    // init jQuery plugins
+    //
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    const initMiniColors = (selector) => {
+
+
+        $(selector).each((index, controlElem) => {
+
+            const control = $(controlElem);
+            const prop = control.attr('data-js-css-prop');
+
+            $(control).minicolors({
+                opacity: true,
+                position: $(this).attr('data-position') || 'top right',
+                control: 'hue',
+                inline: false,
+                format: 'hex',
+                defaultValue: control.val(),
+
+                change: (value, opacity) => {
+                    if (!value) {
+                        return false;
+                    }
+                    const fullResult = value + ('00' + parseInt(opacity * 255).toString(16)).substr(-2);
+                    console.log('miniColors: ', prop, fullResult);
+                    control.val(fullResult).change();
+                    return false;
+                },
+            });
+        });
+
+    };
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //
     // render elements
     //
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -1506,6 +1549,8 @@ if (sourceElementIndex == targetElementIndex) {
         fillSoundSelector();
         fillImageSelector();
         translator.applyAuto();
+
+        initMiniColors('.color-minicolor')
 
         mobx.autorun(
             () => render()

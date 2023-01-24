@@ -320,3 +320,26 @@ html .file-input-customizer > label {
 .admin-block-control-group-vertical > label {
     margin-bottom: 4px;
 }
+
+/* plugins customizing *****************************************888** */
+
+.admin-block-control-group .minicolors {
+    display: inline-block;
+    margin-right: 0;
+    border-radius: 4px;;
+}
+
+.admin-block-control-group .minicolors .color-minicolor.minicolors-input {
+    height: 26px;
+    padding-left: 4px;;
+}
+
+.admin-block-control-group .minicolors .minicolors-input-swatch {
+    right: 0;
+    top: 0;
+    bottom: 0;
+    height: auto;
+    width: 36px;
+    border-radius: 0 4px 4px 0;
+    overflow: hidden;
+}
