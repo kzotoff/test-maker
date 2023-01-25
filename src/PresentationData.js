@@ -85,7 +85,7 @@ const PresentationData = function(options) {
     };
 
     this.saveToStorage = () => {
-        console.log('saving data to localstorage');
+        console.debug('saving data to localstorage');
         localStorage.setItem("data", JSON.stringify(this.data));
     };
 

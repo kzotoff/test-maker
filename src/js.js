@@ -468,6 +468,12 @@
 
         const element = data.data.pages[state.currentPage].elements[state.currentElement];
 
+        if (!element) {
+            // TODO currentElement should be set to null/undefined when no elements
+            // TODO currently it is always int
+            return;
+        }
+
         const prop = $(event.target).attr('data-js-css-prop') || $(event.target).attr('data-js-css-unit');
         const propControl = $('[data-js-css-prop="' + prop + '"]');
 
@@ -484,7 +490,7 @@
             let propUnit = $('[data-js-css-unit="' + prop + '"]').val();
             let propValue = propControl.val() + (propUnit ? propUnit : "");
 
-            console.log(prop, propValue);
+            console.log('[elementSetStyle]', prop, propValue);
             element.style[prop] = propValue;
         }
 
@@ -1091,7 +1097,7 @@ if (sourceElementIndex == targetElementIndex) {
 
                 $('body').on(eventType, selector, (event) => {
                     if (availability()) {
-                        console.log('running handler for', event.type);
+                        console.debug('running handler for', event.type);
                         handler(event);
                     }
                 });
@@ -1205,7 +1211,7 @@ if (sourceElementIndex == targetElementIndex) {
 
             // check if it is hex color
             if (value.match(/^#[0-9a-f]{3,8}$/)) {
-                console.log(prop, 'rgba color', value);
+                console.log('[fillCssFields]', prop, 'color', value);
                 styleControl.val(value);
                 initMiniColors(styleControl);
                 continue;
@@ -1374,8 +1380,7 @@ if (sourceElementIndex == targetElementIndex) {
     //////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    const initMiniColors = (selector) => {
-
+    const miniColorsInit = (selector) => {
 
         $(selector).each((index, controlElem) => {
 
@@ -1395,13 +1400,17 @@ if (sourceElementIndex == targetElementIndex) {
                         return false;
                     }
                     const fullResult = value + ('00' + parseInt(opacity * 255).toString(16)).substr(-2);
-                    console.log('miniColors: ', prop, fullResult);
+                    console.log('[miniColors set input]: ', prop, fullResult);
                     control.val(fullResult).change();
                     return false;
                 },
             });
         });
 
+    };
+
+    const miniColorsUpdate = (target, value) => {
+        //$(target).minicolors('value', value)
     };
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -1509,7 +1518,7 @@ if (sourceElementIndex == targetElementIndex) {
 
     const render = () => {
 
-        console.log('render');
+        console.debug('render');
         renderPagesSummary();
         renderElementsSummary();
         renderPage(".content", data.data.pages[state.currentPage]);
@@ -1550,7 +1559,7 @@ if (sourceElementIndex == targetElementIndex) {
         fillImageSelector();
         translator.applyAuto();
 
-        initMiniColors('.color-minicolor')
+        miniColorsInit('.color-minicolor')
 
         mobx.autorun(
             () => render()
