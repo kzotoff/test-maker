@@ -862,38 +862,38 @@
         const sourceElement = data.data.pages[state.currentPage].elements[sourceElementIndex]
         const sourceElementBehaviorId = _.get(sourceElement, "behavior.id");
 
+        // IQ board patch start
+        //
+        // that boards "pointerup" event always shows event target to element where "pointerdown" occured
+        // so target element will be always equal to start element
+        //
+        // TODO this test ignores z-index but should respect it
+
         if (sourceElementIndex == targetElementIndex) {
 
-// IQ board patch start
-//
-//
+            const endX = event.pageX;
+            const endY = event.pageY;
 
-const endX = event.pageX;
-const endY = event.pageY;
+            $('.element').each((index, elem) => {
+                if (
+                    endX > elem.offsetLeft && endX < elem.offsetLeft + elem.offsetWidth
+                    &&
+                    endY > elem.offsetTop  && endY < elem.offsetTop + elem.offsetHeight
+                ) {
+                    targetElementIndex = index;
+                    console.log('found another arrow target: ', elem);
+                }
+            });
 
-$('.element').each((index, elem) => {
-
-    if (
-        endX > elem.offsetLeft && endX < elem.offsetLeft + elem.offsetWidth
-        &&
-        endY > elem.offsetTop  && endY < elem.offsetTop + elem.offsetHeight
-    ) {
-        targetElementIndex = index;
-        console.log('found another arrow target: ', elem);
-    }
-
-});
-
-if (sourceElementIndex == targetElementIndex) {
-    console.log('source and target for the arrow are the same, skipping');
-    return;
-}
-
-//
-//
-// IQ board patch end
-
+            // well, they are REALLY the same
+            if (sourceElementIndex == targetElementIndex) {
+                console.log('source and target for the arrow are the same, skipping');
+                return;
+            }
         }
+
+        //
+        // IQ board patch end
 
         const targetElement = data.data.pages[state.currentPage].elements[targetElementIndex];
 
