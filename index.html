@@ -326,11 +326,15 @@
         <div data-js-action="arrow-template">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 350 100" style="display: none; z-index: 99; pointer-events: none;">
                 <defs>
-                    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                    <marker data-anchor="arrowhead-border" id="arrowhead-border" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+                        <polygon points="0 0, 10 4, 0 8" fill="#000" />
+                    </marker>
+                    <marker marker-knockout-left="3px" marker-knockout-right="3px" data-anchor="arrowhead-inner" id="arrowhead-inner" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
                         <polygon points="0 0, 8 3, 0 6" fill="#888" />
                     </marker>
                 </defs>
-                <line x1="0" y1="50" x2="250" y2="50" stroke="#888" stroke-width="2" marker-end="url(#arrowhead)" />
+                <line data-anchor="line-border" x1="0" y1="50" x2="250" y2="50" stroke="#000" stroke-width="2" marker-end="url(#arrowhead-inner)" />
+                <line data-anchor="line-inner" x1="0" y1="50" x2="250" y2="50" stroke="#888" stroke-width="4" marker-end="url(#arrowhead-border)" />
             </svg>
         </div>
 

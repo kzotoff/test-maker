@@ -754,14 +754,22 @@
         const toX = params.x2;
         const toY = params.y2;
 
-        const strokeWidth = 4;
+        const strokeWidth = 7; // inner arrow width
+        const borderWidth = 1; // width of black border around the arrow
+        const innerMarkerSize = 4; // arrowhead length for 1 pixel stroke
+        const magic = 1.07; // I'm too lazy to calc all the math so I just guessed this value
+
+        const upscale = (strokeWidth + 2 * borderWidth) / strokeWidth;
+
         const viewBoxPlus = strokeWidth * 3; // head width is 3 pixels
 
         const arrowWidth = Math.abs(toX - fromX);
         const arrowHeight = Math.abs(toY - fromY);
 
-        const line = svg.find('line');
-        const marker = svg.find('defs').find('marker');
+        const lineInner = svg.find('[data-anchor="line-inner"]');
+        const markerInner = svg.find('[data-anchor="arrowhead-inner"]');
+        const lineBorder = svg.find('[data-anchor="line-border"]');
+        const markerBorder = svg.find('[data-anchor="arrowhead-border"]');
 
         const viewBox = `-${viewBoxPlus} -${viewBoxPlus} ${arrowWidth + 2 * viewBoxPlus} ${arrowHeight + 2 * viewBoxPlus}`;
         svg.attr("viewBox", viewBox);
@@ -775,20 +783,52 @@
             "height": arrowHeight + 2 * viewBoxPlus,
         });
 
-        line.attr("stroke-width", strokeWidth);
-        line.attr("x1", toX > fromX ? 0 : arrowWidth);
-        line.attr("x2", toX > fromX ? arrowWidth : 0);
-        line.attr("y1", toY > fromY ? 0 : arrowHeight);
-        line.attr("y2", toY > fromY ? arrowHeight : 0);
+        const lineId = new Date().getTime() + Math.random();
 
-        // re-attach end marker (separate for each SVG so add unique ID)
-        const arrowHeadId = "head-" + new Date().getTime() + Math.random();
-        marker.attr("id", arrowHeadId);
-        line.attr("marker-end", `url(#${arrowHeadId})`)
+        lineInner.attr("stroke-width", strokeWidth);
+        lineInner.attr("x1", toX > fromX ? 0 : arrowWidth);
+        lineInner.attr("x2", toX > fromX ? arrowWidth : 0);
+        lineInner.attr("y1", toY > fromY ? 0 : arrowHeight);
+        lineInner.attr("y2", toY > fromY ? arrowHeight : 0);
+
+        // points="0 0, 8 3, 0 6"
+        markerInner.attr({
+            markerWidth: 2 * innerMarkerSize,
+            markerHeight: 1.5 * innerMarkerSize,
+            refX: 1.8 * innerMarkerSize,
+            refY: 0.75 * innerMarkerSize,
+        });
+        markerInner.find("polygon").attr("points", `0 0, ${2 * innerMarkerSize} ${0.75 * innerMarkerSize}, 0 ${1.5 * innerMarkerSize}`)
+
+
+        lineBorder.attr("stroke-width", strokeWidth + 2 * borderWidth);
+        lineBorder.attr("x1", toX > fromX ? 0 : arrowWidth);
+        lineBorder.attr("x2", toX > fromX ? arrowWidth : 0);
+        lineBorder.attr("y1", toY > fromY ? 0 : arrowHeight);
+        lineBorder.attr("y2", toY > fromY ? arrowHeight : 0);
+
+        const borderMarkerSize = 4 / upscale * magic;
+
+        markerBorder.attr({
+            markerWidth: 2 * borderMarkerSize,
+            markerHeight: 1.5 * borderMarkerSize,
+            refX: 2 * borderMarkerSize - 1 / magic,
+            refY: 0.75 * borderMarkerSize,
+        });
+        markerBorder.find("polygon").attr("points", `0 0, ${2 * borderMarkerSize} ${0.75 * borderMarkerSize}, 0 ${1.5 * borderMarkerSize}`)
+
+        // re-attach markers (separate for each SVG so add unique ID)
+        const arrowInnerHeadId = "arrowhead-inner-" + lineId;
+        markerInner.attr("id", arrowInnerHeadId);
+        lineInner.attr("marker-end", `url(#${arrowInnerHeadId})`);
+
+        const arrowBorderHeadId = "arrowhead-border-" + lineId;
+        markerBorder.attr("id", arrowBorderHeadId);
+        lineBorder.attr("marker-end", `url(#${arrowBorderHeadId})`);
 
         if (params.color) {
-            line.attr("stroke", params.color);
-            marker.find('polygon').attr("fill", params.color);
+            lineInner.attr("stroke", params.color);
+            markerInner.find('polygon').attr("fill", params.color);
 
         }
         return svg;
@@ -898,7 +938,7 @@ if (sourceElementIndex == targetElementIndex) {
             y1: arrowMaker.fromY,
             x2: event.pageX,
             y2: event.pageY,
-            color: isCorrect ? "#0a0" : "#f44",
+            color: isCorrect ? "#0d0" : "#f44",
         });
 
         arrowMaker.existingArrows.push({
