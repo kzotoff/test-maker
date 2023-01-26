@@ -51,6 +51,8 @@
     });
     data.loadFromStorage();
 
+    // solution check debounce control
+    var solutionShouldBeChecked = false;
 
     //
     //
@@ -994,7 +996,11 @@
         if (state.modes.edit) {
             return;
         }
-        setTimeout(doCheckSolution, 10);
+
+        if (solutionShouldBeChecked) {
+            clearTimeout(solutionShouldBeChecked);
+        }
+        solutionShouldBeChecked = setTimeout(doCheckSolution, 50);
     };
 
     const doCheckSolution = () => {
@@ -1031,6 +1037,9 @@
 
     // do when solution is correct
     const indicateCorrectSolution = () => {
+
+        console.log('this is correct!');
+
         const solution = data.data.pages[state.currentPage].solution;
 
         const showElementsOnCorrect = solution["solution-correct-show-elements"];
@@ -1044,6 +1053,12 @@
                     $(`[data-js-element-index="${elemIndex}"]`).css("visibility", "visible");
                 });
 
+        }
+
+        const playSoundOnCorrect = solution["solution-correct-play-sound"];
+        if (playSoundOnCorrect) {
+            const url = './media/sound/' + playSoundOnCorrect;
+            audioPlay(url);
         }
     };
 
@@ -1400,6 +1415,7 @@
 
     const fillSoundSelector = () => {
         fillMediaSelector('sound', '[data-js-content="element-sound"]');
+        fillMediaSelector('sound', '[data-js-content="solution-correct-sound"]');
     };
 
     const fillImageSelector = () => {
