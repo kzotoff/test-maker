@@ -1203,17 +1203,17 @@ if (sourceElementIndex == targetElementIndex) {
             const value = element.style[prop];
             const styleControl = $('[data-js-css-prop="' + prop + '"]');
 
-            if (!styleControl) {
-                console.warn('CSS property value is not recognized and will be deleted: ', prop, value);
-                delete(element.style[prop]);
+            // check if it is hex color
+            if (styleControl.attr('data-input-type') == "color") {
+                console.log('[fillCssFields]', prop, 'color', value);
+                styleControl.val(value).change();
+                colorPickerUpdateInputValue(styleControl, value);
                 continue;
             }
 
-            // check if it is hex color
-            if (value.match(/^#[0-9a-f]{3,8}$/)) {
-                console.log('[fillCssFields]', prop, 'color', value);
-                styleControl.val(value);
-                initMiniColors(styleControl);
+            if (!styleControl) {
+                console.warn('CSS property value is not recognized and will be deleted: ', prop, value);
+                delete(element.style[prop]);
                 continue;
             }
 
@@ -1380,37 +1380,30 @@ if (sourceElementIndex == targetElementIndex) {
     //////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    const miniColorsInit = (selector) => {
+    const colorPickerInit = (selector) => {
+
+        jscolor.presets.default = {
+            format:'hexa',
+            uppercase:false,
+            previewPosition:'right',
+            width:200,
+            height:200,
+        };
 
         $(selector).each((index, controlElem) => {
-
-            const control = $(controlElem);
-            const prop = control.attr('data-js-css-prop');
-
-            $(control).minicolors({
-                opacity: true,
-                position: $(this).attr('data-position') || 'top right',
-                control: 'hue',
-                inline: false,
-                format: 'hex',
-                defaultValue: control.val(),
-
-                change: (value, opacity) => {
-                    if (!value) {
-                        return false;
-                    }
-                    const fullResult = value + ('00' + parseInt(opacity * 255).toString(16)).substr(-2);
-                    console.log('[miniColors set input]: ', prop, fullResult);
-                    control.val(fullResult).change();
-                    return false;
-                },
-            });
+            if (!$(controlElem).attr('data-jscolor')) {
+                $(controlElem).attr('data-jscolor', "");
+            }
+            jscolor.install()
         });
-
     };
 
-    const miniColorsUpdate = (target, value) => {
-        //$(target).minicolors('value', value)
+    const colorPickerUpdateInputValue = (element, value) => {
+        element.each((index, elem) => {
+            if (elem.jscolor) {
+                elem.jscolor.fromString(value);
+            }
+        });
     };
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -1559,7 +1552,7 @@ if (sourceElementIndex == targetElementIndex) {
         fillImageSelector();
         translator.applyAuto();
 
-        miniColorsInit('.color-minicolor')
+        colorPickerInit('[data-input-type="color"]')
 
         mobx.autorun(
             () => render()
