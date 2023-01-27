@@ -51,6 +51,8 @@
     });
     data.loadFromStorage();
 
+    // solution check debounce control
+    var solutionShouldBeChecked = false;
 
     //
     //
@@ -79,7 +81,7 @@
         state.modes.edit = false;
     };
 
-    const modeSaveSet= (value) => {
+    const modeSaveSet = (value) => {
         if (typeof value === "undefined") {
             value = !state.modes.saving
         }
@@ -87,7 +89,7 @@
         state.modes.loading = false;
     };
 
-    const modeLoadSet= (value) => {
+    const modeLoadSet = (value) => {
         if (typeof value === "undefined") {
             value = !state.modes.loading
         }
@@ -169,6 +171,7 @@
             contentType: false,
             success: () => {
                 notificator.info(translator.forCode("saved-as") + ' ' + filename);
+                modeSaveSet(false);
             },
         }));
     };
@@ -185,7 +188,9 @@
             url: './media/json/' + filename,
             contentType: 'text/plain',
             success: (result) => {
+                notificator.info(translator.forCode("presentation-loaded"));
                 console.log('well, got that:', result);
+                modeLoadSet(false);
                 data.makeDataFrom(result);
                 render();
             },
@@ -465,6 +470,12 @@
 
         const element = data.data.pages[state.currentPage].elements[state.currentElement];
 
+        if (!element) {
+            // TODO currentElement should be set to null/undefined when no elements
+            // TODO currently it is always int
+            return;
+        }
+
         const prop = $(event.target).attr('data-js-css-prop') || $(event.target).attr('data-js-css-unit');
         const propControl = $('[data-js-css-prop="' + prop + '"]');
 
@@ -480,6 +491,8 @@
         } else {
             let propUnit = $('[data-js-css-unit="' + prop + '"]').val();
             let propValue = propControl.val() + (propUnit ? propUnit : "");
+
+            console.log('[elementSetStyle]', prop, propValue);
             element.style[prop] = propValue;
         }
 
@@ -743,14 +756,22 @@
         const toX = params.x2;
         const toY = params.y2;
 
-        const strokeWidth = 4;
+        const strokeWidth = 7; // inner arrow width
+        const borderWidth = 1; // width of black border around the arrow
+        const innerMarkerSize = 4; // arrowhead length for 1 pixel stroke
+        const magic = 1.07; // I'm too lazy to calc all the math so I just guessed this value
+
+        const upscale = (strokeWidth + 2 * borderWidth) / strokeWidth;
+
         const viewBoxPlus = strokeWidth * 3; // head width is 3 pixels
 
         const arrowWidth = Math.abs(toX - fromX);
         const arrowHeight = Math.abs(toY - fromY);
 
-        const line = svg.find('line');
-        const marker = svg.find('defs').find('marker');
+        const lineInner = svg.find('[data-anchor="line-inner"]');
+        const markerInner = svg.find('[data-anchor="arrowhead-inner"]');
+        const lineBorder = svg.find('[data-anchor="line-border"]');
+        const markerBorder = svg.find('[data-anchor="arrowhead-border"]');
 
         const viewBox = `-${viewBoxPlus} -${viewBoxPlus} ${arrowWidth + 2 * viewBoxPlus} ${arrowHeight + 2 * viewBoxPlus}`;
         svg.attr("viewBox", viewBox);
@@ -764,20 +785,52 @@
             "height": arrowHeight + 2 * viewBoxPlus,
         });
 
-        line.attr("stroke-width", strokeWidth);
-        line.attr("x1", toX > fromX ? 0 : arrowWidth);
-        line.attr("x2", toX > fromX ? arrowWidth : 0);
-        line.attr("y1", toY > fromY ? 0 : arrowHeight);
-        line.attr("y2", toY > fromY ? arrowHeight : 0);
+        const lineId = new Date().getTime() + Math.random();
 
-        // re-attach end marker (separate for each SVG so add unique ID)
-        const arrowHeadId = "head-" + new Date().getTime() + Math.random();
-        marker.attr("id", arrowHeadId);
-        line.attr("marker-end", `url(#${arrowHeadId})`)
+        lineInner.attr("stroke-width", strokeWidth);
+        lineInner.attr("x1", toX > fromX ? 0 : arrowWidth);
+        lineInner.attr("x2", toX > fromX ? arrowWidth : 0);
+        lineInner.attr("y1", toY > fromY ? 0 : arrowHeight);
+        lineInner.attr("y2", toY > fromY ? arrowHeight : 0);
+
+        // points="0 0, 8 3, 0 6"
+        markerInner.attr({
+            markerWidth: 2 * innerMarkerSize,
+            markerHeight: 1.5 * innerMarkerSize,
+            refX: 1.8 * innerMarkerSize - 0.4,
+            refY: 0.75 * innerMarkerSize,
+        });
+        markerInner.find("polygon").attr("points", `0 0, ${2 * innerMarkerSize} ${0.75 * innerMarkerSize}, 0 ${1.5 * innerMarkerSize}`)
+
+
+        lineBorder.attr("stroke-width", strokeWidth + 2 * borderWidth);
+        lineBorder.attr("x1", toX > fromX ? 0 : arrowWidth);
+        lineBorder.attr("x2", toX > fromX ? arrowWidth : 0);
+        lineBorder.attr("y1", toY > fromY ? 0 : arrowHeight);
+        lineBorder.attr("y2", toY > fromY ? arrowHeight : 0);
+
+        const borderMarkerSize = 4 / upscale * magic;
+
+        markerBorder.attr({
+            markerWidth: 2 * borderMarkerSize,
+            markerHeight: 1.5 * borderMarkerSize,
+            refX: 2 * borderMarkerSize - 1.33 / magic,
+            refY: 0.75 * borderMarkerSize,
+        });
+        markerBorder.find("polygon").attr("points", `0 0, ${2 * borderMarkerSize} ${0.75 * borderMarkerSize}, 0 ${1.5 * borderMarkerSize}`)
+
+        // re-attach markers (separate for each SVG so add unique ID)
+        const arrowInnerHeadId = "arrowhead-inner-" + lineId;
+        markerInner.attr("id", arrowInnerHeadId);
+        lineInner.attr("marker-end", `url(#${arrowInnerHeadId})`);
+
+        const arrowBorderHeadId = "arrowhead-border-" + lineId;
+        markerBorder.attr("id", arrowBorderHeadId);
+        lineBorder.attr("marker-end", `url(#${arrowBorderHeadId})`);
 
         if (params.color) {
-            line.attr("stroke", params.color);
-            marker.find('polygon').attr("fill", params.color);
+            lineInner.attr("stroke", params.color);
+            markerInner.find('polygon').attr("fill", params.color);
 
         }
         return svg;
@@ -811,38 +864,38 @@
         const sourceElement = data.data.pages[state.currentPage].elements[sourceElementIndex]
         const sourceElementBehaviorId = _.get(sourceElement, "behavior.id");
 
+        // IQ board patch start
+        //
+        // that boards "pointerup" event always shows event target to element where "pointerdown" occured
+        // so target element will be always equal to start element
+        //
+        // TODO this test ignores z-index but should respect it
+
         if (sourceElementIndex == targetElementIndex) {
 
-// IQ board patch start
-//
-//
+            const endX = event.pageX;
+            const endY = event.pageY;
 
-const endX = event.pageX;
-const endY = event.pageY;
+            $('.element').each((index, elem) => {
+                if (
+                    endX > elem.offsetLeft && endX < elem.offsetLeft + elem.offsetWidth
+                    &&
+                    endY > elem.offsetTop  && endY < elem.offsetTop + elem.offsetHeight
+                ) {
+                    targetElementIndex = index;
+                    console.log('found another arrow target: ', elem);
+                }
+            });
 
-$('.element').each((index, elem) => {
-
-    if (
-        endX > elem.offsetLeft && endX < elem.offsetLeft + elem.offsetWidth
-        &&
-        endY > elem.offsetTop  && endY < elem.offsetTop + elem.offsetHeight
-    ) {
-        targetElementIndex = index;
-        console.log('found another arrow target: ', elem);
-    }
-
-});
-
-if (sourceElementIndex == targetElementIndex) {
-    console.log('source and target for the arrow are the same, skipping');
-    return;
-}
-
-//
-//
-// IQ board patch end
-
+            // well, they are REALLY the same
+            if (sourceElementIndex == targetElementIndex) {
+                console.log('source and target for the arrow are the same, skipping');
+                return;
+            }
         }
+
+        //
+        // IQ board patch end
 
         const targetElement = data.data.pages[state.currentPage].elements[targetElementIndex];
 
@@ -887,7 +940,7 @@ if (sourceElementIndex == targetElementIndex) {
             y1: arrowMaker.fromY,
             x2: event.pageX,
             y2: event.pageY,
-            color: isCorrect ? "#0a0" : "#f44",
+            color: isCorrect ? "#0d0" : "#f44",
         });
 
         arrowMaker.existingArrows.push({
@@ -943,7 +996,11 @@ if (sourceElementIndex == targetElementIndex) {
         if (state.modes.edit) {
             return;
         }
-        setTimeout(doCheckSolution, 10);
+
+        if (solutionShouldBeChecked) {
+            clearTimeout(solutionShouldBeChecked);
+        }
+        solutionShouldBeChecked = setTimeout(doCheckSolution, 50);
     };
 
     const doCheckSolution = () => {
@@ -980,6 +1037,9 @@ if (sourceElementIndex == targetElementIndex) {
 
     // do when solution is correct
     const indicateCorrectSolution = () => {
+
+        console.log('this is correct!');
+
         const solution = data.data.pages[state.currentPage].solution;
 
         const showElementsOnCorrect = solution["solution-correct-show-elements"];
@@ -993,6 +1053,12 @@ if (sourceElementIndex == targetElementIndex) {
                     $(`[data-js-element-index="${elemIndex}"]`).css("visibility", "visible");
                 });
 
+        }
+
+        const playSoundOnCorrect = solution["solution-correct-play-sound"];
+        if (playSoundOnCorrect) {
+            const url = './media/sound/' + playSoundOnCorrect;
+            audioPlay(url);
         }
     };
 
@@ -1086,7 +1152,7 @@ if (sourceElementIndex == targetElementIndex) {
 
                 $('body').on(eventType, selector, (event) => {
                     if (availability()) {
-                        console.log('running handler for', event.type);
+                        console.debug('running handler for', event.type);
                         handler(event);
                     }
                 });
@@ -1192,16 +1258,17 @@ if (sourceElementIndex == targetElementIndex) {
             const value = element.style[prop];
             const styleControl = $('[data-js-css-prop="' + prop + '"]');
 
-            if (!styleControl) {
-                console.warn('CSS property value is not recognized and will be deleted: ', prop, value);
-                delete(element.style[prop]);
+            // check if it is hex color
+            if (styleControl.attr('data-input-type') == "color") {
+                console.log('[fillCssFields]', prop, 'color', value);
+                styleControl.val(value).change();
+                colorPickerUpdateInputValue(styleControl, value);
                 continue;
             }
 
-            // check if it is color
-            if (value.match(/#[0-9a-f]{3}([0-9a-f]{3})?/)) {
-                // console.log(prop, 'color', value);
-                styleControl.val(value);
+            if (!styleControl) {
+                console.warn('CSS property value is not recognized and will be deleted: ', prop, value);
+                delete(element.style[prop]);
                 continue;
             }
 
@@ -1348,6 +1415,7 @@ if (sourceElementIndex == targetElementIndex) {
 
     const fillSoundSelector = () => {
         fillMediaSelector('sound', '[data-js-content="element-sound"]');
+        fillMediaSelector('sound', '[data-js-content="solution-correct-sound"]');
     };
 
     const fillImageSelector = () => {
@@ -1356,6 +1424,42 @@ if (sourceElementIndex == targetElementIndex) {
 
      const fillJsonSelector = () => {
         fillMediaSelector('json', '[data-js-content="presentations"]');
+    };
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // init jQuery plugins
+    //
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////
+
+    const colorPickerInit = (selector) => {
+
+        jscolor.presets.default = {
+            format:'hexa',
+            uppercase:false,
+            previewPosition:'right',
+            width:200,
+            height:200,
+        };
+
+        $(selector).each((index, controlElem) => {
+            if (!$(controlElem).attr('data-jscolor')) {
+                $(controlElem).attr('data-jscolor', "");
+            }
+            jscolor.install()
+        });
+    };
+
+    const colorPickerUpdateInputValue = (element, value) => {
+        element.each((index, elem) => {
+            if (elem.jscolor) {
+                elem.jscolor.fromString(value);
+            }
+        });
     };
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -1463,7 +1567,7 @@ if (sourceElementIndex == targetElementIndex) {
 
     const render = () => {
 
-        console.log('render');
+        console.debug('render');
         renderPagesSummary();
         renderElementsSummary();
         renderPage(".content", data.data.pages[state.currentPage]);
@@ -1503,6 +1607,8 @@ if (sourceElementIndex == targetElementIndex) {
         fillSoundSelector();
         fillImageSelector();
         translator.applyAuto();
+
+        colorPickerInit('[data-input-type="color"]')
 
         mobx.autorun(
             () => render()

@@ -12,6 +12,7 @@
         <script src="./lib/lodash/lodash-full.js"></script>
         <script src="./lib/mobx/mobx.umd.production.min.js"></script>
         <script src="./lib/zip/zip.js"></script>
+        <script src="./lib/jscolor/jscolor.js"></script>
 
         <link rel="stylesheet" href="./lib/jquery-ui/jquery-ui.min.css" />
         <link rel="stylesheet" href="./src/css.css" />
@@ -56,7 +57,7 @@
 
                         <button class="admin-control-icon-button fa-solid fa-file-arrow-down" title="export" data-js-action="presentation-export"></button>
 
-                        <div class="file-input-customizer file-input-for-import">
+                        <div class="file-input-customizer file-input-for-import" title="import">
                             <label>
                                 <button class="admin-control-icon-button fa-solid fa-file-arrow-up"></button>
                             </label>
@@ -230,15 +231,15 @@
                     </div>
                     <div class="admin-block-control-group">
                         <label data-translation-id="css-prop-color">Color</label>
-                        <input type="color" data-js-css-prop="color" data-js-action="element-css-value">
+                        <input data-input-type="color" type="text" data-js-css-prop="color" data-js-action="element-css-value">
                     </div>
                     <div class="admin-block-control-group">
                         <label data-translation-id="css-prop-background-color">Background color</label>
-                        <input type="color" data-js-css-prop="background-color" data-js-action="element-css-value">
+                        <input data-input-type="color" type="text" data-js-css-prop="background-color" data-js-action="element-css-value">
                     </div>
                     <div class="admin-block-control-group">
                         <label data-translation-id="css-prop-border-color">Border color</label>
-                        <input type="color" data-js-css-prop="border-color" data-js-action="element-css-value">
+                        <input data-input-type="color" type="text" data-js-css-prop="border-color" data-js-action="element-css-value">
                     </div>
                     <div class="admin-block-control-group">
                         <label for="data-js-style-hidden" data-translation-id="style-hidden">Hidden</label>
@@ -317,6 +318,10 @@
                         <label data-translation-id="solution-correct-show-element">Show elements when correct</label>
                         <input type="text" data-js-action="solution-control" data-js-solution="solution-correct-show-elements" />
                     </div>
+                    <div class="admin-block-control-group">
+                        <label data-translation-id="solution-correct-play-sound">Play sound when correct</label>
+                        <select data-js-content="solution-correct-sound" data-js-action="solution-control" data-js-solution="solution-correct-play-sound"></select>
+                    </div>
                 </div>
             </div>
 
@@ -325,11 +330,15 @@
         <div data-js-action="arrow-template">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 350 100" style="display: none; z-index: 99; pointer-events: none;">
                 <defs>
-                    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                    <marker data-anchor="arrowhead-border" id="arrowhead-border" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+                        <polygon points="0 0, 10 4, 0 8" fill="#000" />
+                    </marker>
+                    <marker marker-knockout-left="3px" marker-knockout-right="3px" data-anchor="arrowhead-inner" id="arrowhead-inner" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
                         <polygon points="0 0, 8 3, 0 6" fill="#888" />
                     </marker>
                 </defs>
-                <line x1="0" y1="50" x2="250" y2="50" stroke="#888" stroke-width="2" marker-end="url(#arrowhead)" />
+                <line data-anchor="line-border" x1="0" y1="50" x2="250" y2="50" stroke="#000" stroke-width="2" marker-end="url(#arrowhead-inner)" />
+                <line data-anchor="line-inner" x1="0" y1="50" x2="250" y2="50" stroke="#888" stroke-width="4" marker-end="url(#arrowhead-border)" />
             </svg>
         </div>
 
