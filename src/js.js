@@ -797,7 +797,7 @@
         markerInner.attr({
             markerWidth: 2 * innerMarkerSize,
             markerHeight: 1.5 * innerMarkerSize,
-            refX: 1.8 * innerMarkerSize,
+            refX: 1.8 * innerMarkerSize - 0.4,
             refY: 0.75 * innerMarkerSize,
         });
         markerInner.find("polygon").attr("points", `0 0, ${2 * innerMarkerSize} ${0.75 * innerMarkerSize}, 0 ${1.5 * innerMarkerSize}`)
@@ -814,7 +814,7 @@
         markerBorder.attr({
             markerWidth: 2 * borderMarkerSize,
             markerHeight: 1.5 * borderMarkerSize,
-            refX: 2 * borderMarkerSize - 1 / magic,
+            refX: 2 * borderMarkerSize - 1.33 / magic,
             refY: 0.75 * borderMarkerSize,
         });
         markerBorder.find("polygon").attr("points", `0 0, ${2 * borderMarkerSize} ${0.75 * borderMarkerSize}, 0 ${1.5 * borderMarkerSize}`)

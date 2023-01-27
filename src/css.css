@@ -252,6 +252,10 @@ html .file-input-customizer > label {
     margin: -5px;
 }
 
+.file-input-for-import .file-input-customizer * {
+    cursor: pointer !important;
+}
+
 .admin-block-control-group:not(:last-child) {
     margin-bottom: 10px;
 }
