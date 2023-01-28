@@ -79,6 +79,7 @@
 
     const modeEditOff = () => {
         state.modes.edit = false;
+        playModeReset();
     };
 
     const modeSaveSet = (value) => {
@@ -383,6 +384,7 @@
         }
         state.currentPage = Math.max(state.currentPage - 1, 0);
         state.currentElement = 0;
+        playModeReset();
     };
 
     const pageNext = (event) => {
@@ -391,6 +393,7 @@
         }
         state.currentPage = Math.min(state.currentPage + 1, data.data.pages.length - 1);
         state.currentElement = 0;
+        playModeReset();
     };
 
     const pageAdd = () => {
