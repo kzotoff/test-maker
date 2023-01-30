@@ -1499,7 +1499,7 @@
         }
 
         if (elem.content.sound) {
-            $div.append('<div class="element-sound-icon fa-solid fa-music"></div>');
+            $div.append('<div class="element-sound-icon fa-solid fa-music" data-visible-edit-only></div>');
         }
 
         if (state.modes.edit) {
