@@ -79,6 +79,7 @@
 
     const modeEditOff = () => {
         state.modes.edit = false;
+        playModeReset();
     };
 
     const modeSaveSet = (value) => {
@@ -383,6 +384,7 @@
         }
         state.currentPage = Math.max(state.currentPage - 1, 0);
         state.currentElement = 0;
+        playModeReset();
     };
 
     const pageNext = (event) => {
@@ -391,6 +393,7 @@
         }
         state.currentPage = Math.min(state.currentPage + 1, data.data.pages.length - 1);
         state.currentElement = 0;
+        playModeReset();
     };
 
     const pageAdd = () => {
@@ -410,7 +413,13 @@
             return;
         }
         data.data.pages[state.currentPage].metadata.backgroundImage = event.target.value;
+    };
 
+    const pageArrowWidth = (event) => {
+        if (!data.data.pages[state.currentPage]) {
+            return;
+        }
+        data.data.pages[state.currentPage].metadata.arrowWidth = event.target.value;
     };
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -756,7 +765,9 @@
         const toX = params.x2;
         const toY = params.y2;
 
-        const strokeWidth = 7; // inner arrow width
+        // inner arrow width
+        // TODO move 4 to constants
+        const strokeWidth = parseInt(data.data.pages[state.currentPage].metadata.arrowWidth) || 4;
         const borderWidth = 1; // width of black border around the arrow
         const innerMarkerSize = 4; // arrowhead length for 1 pixel stroke
         const magic = 1.07; // I'm too lazy to calc all the math so I just guessed this value
@@ -1123,6 +1134,7 @@
             ['click', '[data-js-action="page-prev"]', doAlways, pagePrev],
             ['click', '[data-js-action="page-next"]', doAlways, pageNext],
             ['click', '[data-js-action="page-background-image"]', doIfEditMode, pageBackground],
+            ['change', '[data-js-action="page-arrow-width"]', doIfEditMode, pageArrowWidth],
 
             // elements
             ['mousedown', '.content [data-js-element-index]', doIfEditMode, elementSelect],
@@ -1205,11 +1217,18 @@
 
     const fillPagePropControls = () => {
         $('[data-js-action="page-background-image"]').val("");
+        $('[data-js-action="page-arrow-width"]').val("");
 
         const pageData = data.data.pages[state.currentPage];
+        if (!pageData) {
+            return;
+        }
 
-        if (pageData && pageData.metadata.backgroundImage) {
+        if (pageData.metadata.backgroundImage) {
             $('[data-js-action="page-background-image"]').val(pageData.metadata.backgroundImage);
+        }
+        if (pageData.metadata.arrowWidth) {
+            $('[data-js-action="page-arrow-width"]').val(pageData.metadata.arrowWidth);
         }
 
     };
@@ -1592,7 +1611,7 @@
                 clearTimeout(saveTimer);
                 saveTimer = setTimeout(() => {
                     data.saveToStorage();
-                }, 3000);
+                }, 500);
             }
         );
 
