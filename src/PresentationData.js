@@ -97,6 +97,26 @@ const PresentationData = function(options) {
         this.data.pages.splice(index, 1);
     };
 
+    this.pageSwapPrev = (index) => {
+        if (index <= 0) {
+            return false;
+        }
+        const temp = this.data.pages[index];
+        this.data.pages[index] = this.data.pages[index - 1];
+        this.data.pages[index - 1] = temp;
+        return true;
+    };
+
+    this.pageSwapNext = (index) => {
+        if (index >= this.data.pages.length - 1) {
+            return false;
+        }
+        const temp = this.data.pages[index];
+        this.data.pages[index] = this.data.pages[index + 1];
+        this.data.pages[index + 1] = temp;
+        return true;
+    };
+
     this.elementAdd = (pageIndex) => {
 
         var maxBehaviorId = 0;

@@ -179,7 +179,13 @@ html[data-mode-edit="on"] [data-visible-play-only] {
 }
 .admin-control-icon-button::before {
     font-size: 24px;
+    display: inline-block;
 }
+/* didnt found an icon so just use reverted one */
+.admin-control-icon-button[data-js-action="page-swap-prev"]::before {
+    transform: scaleX(-1);
+}
+
 
 .admin-control-icon-button:hover,
 .file-input-customizer:hover .admin-control-icon-button {

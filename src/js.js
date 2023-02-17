@@ -379,7 +379,7 @@
     //////////////////////////////////////////////////////////////////////////////////////////
 
     const pagePrev = (event) => {
-        if (state.modes.edit && $(event.target).hasClass("element")) {
+        if (state.modes.edit && event && $(event.target).hasClass("element")) {
             return;
         }
         state.currentPage = Math.max(state.currentPage - 1, 0);
@@ -388,7 +388,7 @@
     };
 
     const pageNext = (event) => {
-        if (state.modes.edit && $(event.target).hasClass("element")) {
+        if (state.modes.edit && event && $(event.target).hasClass("element")) {
             return;
         }
         state.currentPage = Math.min(state.currentPage + 1, data.data.pages.length - 1);
@@ -400,6 +400,20 @@
         data.pageAdd();
         pageNext();
         data.elementAdd(state.currentPage);
+    };
+
+    const pageSwapPrev = () => {
+        const ok = data.pageSwapPrev(state.currentPage)
+        if (ok) {
+            pagePrev();
+        }
+    };
+
+    const pageSwapNext = () => {
+        const ok = data.pageSwapNext(state.currentPage);
+        if (ok) {
+            pageNext();
+        }
     };
 
     const pageDelete = () => {
@@ -1133,6 +1147,8 @@
             ['click', '[data-js-action="page-delete"]', doIfEditMode, pageDelete],
             ['click', '[data-js-action="page-prev"]', doAlways, pagePrev],
             ['click', '[data-js-action="page-next"]', doAlways, pageNext],
+            ['click', '[data-js-action="page-swap-prev"]', doAlways, pageSwapPrev],
+            ['click', '[data-js-action="page-swap-next"]', doAlways, pageSwapNext],
             ['click', '[data-js-action="page-background-image"]', doIfEditMode, pageBackground],
             ['change', '[data-js-action="page-arrow-width"]', doIfEditMode, pageArrowWidth],
 
