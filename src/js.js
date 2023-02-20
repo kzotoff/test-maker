@@ -1323,7 +1323,7 @@
 
         // checkboxes: direct value (e.g., "bold"), there should be checkbox (later may be select)
         if ($elem.attr("type") == "checkbox") {
-            $elem[0].checked = true;
+            $elem[0].checked = value;
             return;
         }
 
