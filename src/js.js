@@ -436,6 +436,20 @@
         data.data.pages[state.currentPage].metadata.arrowWidth = event.target.value;
     };
 
+    const pageAudioHighlightSource = (event) => {
+        if (!data.data.pages[state.currentPage]) {
+            return;
+        }
+        data.data.pages[state.currentPage].metadata.audioHighlightSource = event.target.value;
+    };
+
+    const pageAudioHighlightTarget = (event) => {
+        if (!data.data.pages[state.currentPage]) {
+            return;
+        }
+        data.data.pages[state.currentPage].metadata.audioHighlightTarget = event.target.value;
+    };
+
     //////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -628,8 +642,7 @@
         if (element.behavior) {
             if (element.behavior["arrow-start"] || element.behavior["draggable"]) {
                 highlightStartElementSource(elementIndex);
-            }
-            if (element.behavior["arrow-end-for"] || element.behavior["droppable"]) {
+            } else {
                 highlightStartElementTarget(elementIndex);
             }
         }
@@ -1199,6 +1212,8 @@
             ['click', '[data-js-action="page-swap-next"]', doAlways, pageSwapNext],
             ['click', '[data-js-action="page-background-image"]', doIfEditMode, pageBackground],
             ['change', '[data-js-action="page-arrow-width"]', doIfEditMode, pageArrowWidth],
+            ['change', '[data-js-action="audio-hightlight-source"]', doIfEditMode, pageAudioHighlightSource],
+            ['change', '[data-js-action="audio-hightlight-target"]', doIfEditMode, pageAudioHighlightTarget],
 
             // elements
             ['mousedown', '.content [data-js-element-index]', doIfEditMode, elementSelect],
@@ -1347,6 +1362,30 @@
             $('[data-js-action="page-arrow-width"]').val(pageData.metadata.arrowWidth);
         }
 
+        if (pageData.metadata.audioHighlightSource) {
+            let elem = $('[data-js-action="audio-hightlight-source"]');
+            elementPropertyControlReset(elem);
+            elementPropertyControlSetValue(elem, pageData.metadata.audioHighlightSource);
+            let color = pageData.metadata.audioHighlightSource;
+            if (color) {
+                document.documentElement.style.setProperty('--highlight-color-source', color);
+            } else {
+                document.documentElement.style.removeProperty('--highlight-color-source');
+            }
+        }
+        if (pageData.metadata.audioHighlightTarget) {
+            let elem = $('[data-js-action="audio-hightlight-target"]');
+            elementPropertyControlReset(elem);
+            elementPropertyControlSetValue(elem, pageData.metadata.audioHighlightTarget);
+            let color = pageData.metadata.audioHighlightTarget;
+            if (color) {
+                document.documentElement.style.setProperty('--highlight-color-target', color);
+            } else {
+                document.documentElement.style.removeProperty('--highlight-color-target');
+            }
+        }
+
+
     };
 
     const fillCssFields = () => {
@@ -1411,16 +1450,6 @@
         if (!element.behavior) {
             console.warn('element has no behavior section, it is so strange');
             return;
-        }
-
-        // highlight colors has additional meaning
-        if (element.behavior["audio-hightlight-source"]) {
-            let color = element.behavior["audio-hightlight-source"];
-            document.documentElement.style.setProperty('--highlight-color-source', color);
-        }
-        if (element.behavior["audio-hightlight-target"]) {
-            let color = element.behavior["audio-hightlight-target"];
-            document.documentElement.style.setProperty('--highlight-color-target', color);
         }
 
         for (let prop in element.behavior) {
