@@ -567,6 +567,37 @@
     //////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////
 
+    // here we will store highlighted elements
+    var audioPlayedElementSource = null;
+    var audioPlayedElementTarget = null;
+
+    const highlightStartElementSource = (elementIndex) => {
+        if (state.modes.edit) {
+            return;
+        }
+        highlightStopElementSource();
+        $(`[data-js-element-index="${elementIndex}"]`).addClass("highlight-source");
+        audioPlayedElementSource = elementIndex;
+    };
+    const highlightStopElementSource = () => {
+        $('.highlight-source').removeClass("highlight-source");
+        audioPlayedElementSource = null;
+    };
+
+    const highlightStartElementTarget = (elementIndex) => {
+        if (state.modes.edit) {
+            return;
+        }
+        highlightStopElementTarget();
+        $(`[data-js-element-index="${elementIndex}"]`).addClass("highlight-target");
+        audioPlayedElementTarget = elementIndex;
+    };
+    const highlightStopElementTarget = () => {
+        $('.highlight-target').removeClass("highlight-target");
+        audioPlayedElementTarget = null;
+    };
+
+
     const audioPlay = (url) => {
         console.log('audio play');
         audio.pause();
@@ -579,21 +610,34 @@
         console.log('audio stop');
         audio.pause();
         $('.audio-overlay').css('display', 'none');
+        highlightStopElementTarget();
     };
 
     const elementAudioPlay = (event) => {
         const elementIndex = parseInt($(event.target).closest('[data-js-element-index]').attr('data-js-element-index'));
-        const soundSrc = data.data.pages[state.currentPage].elements[elementIndex].content.sound;
+        const element = data.data.pages[state.currentPage].elements[elementIndex];
+        const soundSrc = element.content.sound;
         console.log('sound source:', soundSrc);
         if (!soundSrc) {
             return;
         }
         const url = './media/sound/' + soundSrc;
         audioPlay(url);
+
+        console.log(element);
+        if (element.behavior) {
+            if (element.behavior["arrow-start"] || element.behavior["draggable"]) {
+                highlightStartElementSource(elementIndex);
+            }
+            if (element.behavior["arrow-end-for"] || element.behavior["droppable"]) {
+                highlightStartElementTarget(elementIndex);
+            }
+        }
     };
 
     const elementAudioStop = () => {
         audioStop();
+        highlightStopElementTarget();
     };
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -661,6 +705,8 @@
         }
 
         checkSolution();
+        highlightStopElementSource();
+        highlightStopElementTarget();
     };
 
     const moverCatch = (event) => {
@@ -976,6 +1022,8 @@
         });
 
         checkSolution();
+        highlightStopElementSource();
+        highlightStopElementTarget();
     };
 
     // stop arrow drawing even on empty space
@@ -1178,14 +1226,13 @@
             const availability = handlerInfo[2];
             const handler = handlerInfo[3];
 
-                $('body').on(eventType, selector, (event) => {
-                    if (availability()) {
-                        console.debug('running handler for', event.type);
-                        handler(event);
-                    }
-                });
+            $('body').on(eventType, selector, (event) => {
+                if (availability()) {
+                    console.debug('running handler for', event.type);
+                    handler(event);
+                }
+            });
         });
-
     };
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -1231,6 +1278,59 @@
         }
     };
 
+    /**
+     *
+     */
+    const elementPropertyControlReset = (elem) => {
+        const $elem = $(elem);
+        if ($elem.attr("type") == "checkbox") {
+            $elem.prop("checked", false);
+            return;
+        }
+        if ($elem.attr("type") == "text") {
+            $elem.val("");
+            return;
+        }
+        if ($elem.attr("type") == "number") {
+            $elem.val("");
+            return;
+        }
+        if ($elem.attr("type") == "color") {
+            $elem.val("#000000");
+            return;
+        }
+    };
+
+    const elementPropertyControlSetValue = (elem, value) => {
+
+        const $elem = $(elem);
+
+        // check if it is hex color
+        if ($elem.attr('data-input-type') == "color") {
+            $elem.val(value).change();
+            colorPickerUpdateInputValue($elem, value);
+            return;
+        }
+
+        // css dimensions controls: digital + optional unit
+        const parts = /(\d+)([^\d]+)?/.exec(value);
+        if (parts) {
+            const prop = $elem.attr('data-js-css-prop');
+            $elem.val(parts[1]);
+            $('[data-js-css-unit="' + prop + '"]').val(parts[2]);
+            return;
+        }
+
+        // checkboxes: direct value (e.g., "bold"), there should be checkbox (later may be select)
+        if ($elem.attr("type") == "checkbox") {
+            $elem[0].checked = true;
+            return;
+        }
+
+        console.warn("trying default val() for unknown control type for ", $elem[0]);
+        $elem.val(value);
+    };
+
     const fillPagePropControls = () => {
         $('[data-js-action="page-background-image"]').val("");
         $('[data-js-action="page-arrow-width"]').val("");
@@ -1256,26 +1356,9 @@
         }
 
         // first, clear all controls
-        $('[data-js-css-prop]').each((index, elem) => {
-            const $elem = $(elem);
-            if ($elem.attr("type") == "text") {
-                $elem.val('');
-                return;
-            }
-            if ($elem.attr("type") == "number") {
-                $elem.val('');
-                return;
-            }
-            if ($elem.attr("type") == "color") {
-                $elem.val('#000000');
-                return;
-            }
+        $('[data-js-css-prop]').each((_, elem) => {
+            elementPropertyControlReset(elem);
         });
-
-        $('[data-js-content="element-text"]').text("");
-        $('[data-js-content="element-sound"]').val("");
-        $('[data-js-action="element-image"]').val("");
-        $('[data-js-action="element-css-toggle"]').prop("checked", false);
 
         //
         const element = data.data.pages[state.currentPage].elements[state.currentElement];
@@ -1284,6 +1367,7 @@
             console.log('no elements');
             return;
         }
+
         if (!element.style) {
             console.warn('element has no style section, it is so strange');
             return;
@@ -1293,35 +1377,13 @@
             const value = element.style[prop];
             const styleControl = $('[data-js-css-prop="' + prop + '"]');
 
-            // check if it is hex color
-            if (styleControl.attr('data-input-type') == "color") {
-                console.log('[fillCssFields]', prop, 'color', value);
-                styleControl.val(value).change();
-                colorPickerUpdateInputValue(styleControl, value);
-                continue;
-            }
-
             if (!styleControl) {
                 console.warn('CSS property value is not recognized and will be deleted: ', prop, value);
                 delete(element.style[prop]);
                 continue;
             }
 
-            // first type: digital + optional unit
-            const parts = /(\d+)([^\d]+)?/.exec(value);
-            if (parts) {
-                // console.log(prop, 'dimension', value);
-                styleControl.val(parts[1]);
-                $('[data-js-css-unit="' + prop + '"]').val(parts[2]);
-                continue;
-            }
-
-            // second type: direct value (e.g., "bold"), there should be checkbox (later may be select)
-            if (styleControl.attr("type") == "checkbox") {
-                styleControl[0].checked = true;
-            } else {
-                console.error("should implement support for something other than checkbox");
-            }
+            elementPropertyControlSetValue(styleControl, value);
         }
 
         $('[data-js-content="element-text"]').val(element.content.text);
@@ -1331,11 +1393,9 @@
 
     const fillBehaviorProps = () => {
 
-        // clearing first
-        $('input[data-js-action="behavior-control"][type="checkbox"]').prop("checked", false);
-        $('input[data-js-action="behavior-control"][type="text"]').val("");
-        $('input[data-js-action="behavior-control"][type="number"]').val("");
-        $('select[data-js-action="behavior-control"]').val("");
+        $('[data-js-action="behavior-control"]').each((_, elem) => {
+            elementPropertyControlReset(elem);
+        });
 
         //
         if (!data.data.pages[state.currentPage]) {
@@ -1353,6 +1413,16 @@
             return;
         }
 
+        // highlight colors has additional meaning
+        if (element.behavior["audio-hightlight-source"]) {
+            let color = element.behavior["audio-hightlight-source"];
+            document.documentElement.style.setProperty('--highlight-color-source', color);
+        }
+        if (element.behavior["audio-hightlight-target"]) {
+            let color = element.behavior["audio-hightlight-target"];
+            document.documentElement.style.setProperty('--highlight-color-target', color);
+        }
+
         for (let prop in element.behavior) {
 
             const value = element.behavior[prop];
@@ -1364,11 +1434,7 @@
                 continue;
             }
 
-            if (propControl.attr("type") == "checkbox") {
-                propControl[0].checked = !! value;
-            } else {
-                propControl.val(value);
-            }
+            elementPropertyControlSetValue(propControl, value);
         }
     };
 
