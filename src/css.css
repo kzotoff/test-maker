@@ -78,12 +78,12 @@ html {
     outline: 2px rgb(255, 50, 50) solid;
 }
 .element.highlight-source {
-    background-color: var(--highlight-color-source);
-    box-shadow: 0 0 10px 10px var(--highlight-color-source);
+    background-color: var(--highlight-color-source); /* this color is being set by script */
+    box-shadow: 0 0 10px 10px var(--highlight-color-source); /* this color is being set by script */
 }
 .element.highlight-target {
-    background-color: var(--highlight-color-target);
-    box-shadow: 0 0 10px 10px var(--highlight-color-target);
+    background-color: var(--highlight-color-target); /* this color is being set by script */
+    box-shadow: 0 0 10px 10px var(--highlight-color-target); /* this color is being set by script */
 }
 
 /* mode *******************************************************/
