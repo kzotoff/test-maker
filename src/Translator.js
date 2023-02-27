@@ -63,6 +63,7 @@ const Translator = function() {
             "load-as": "Load",
             "presentation-loaded": "Loaded",
             "specify-save-as-name": "Specify name",
+            "save-error-already-exists": "File already exists, replace?",
 
             "-h-button-reset": "Reset presentation and start over. All slides will be deleted, while media library content will remain.",
             "-h-behavior-arrow-max-count-from": "Maximum arrow count which can start from this element.",
@@ -134,6 +135,7 @@ const Translator = function() {
             "load-as": "Загрузить:",
             "presentation-loaded": "Загружено",
             "specify-save-as-name": "Укажите имя",
+            "save-error-already-exists": "Такой файл уже существует, заменить?",
 
             "-h-button-reset": "Очистить презентацию и начать заново. Изображения и звуки останутся.",
             "-h-behavior-arrow-max-count-from": "Максимальное количество стрелок, которые могут начинаться на элементе.",

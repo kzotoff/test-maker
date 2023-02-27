@@ -150,6 +150,41 @@
     };
 
     const dataSave = async () => {
+
+        const doSave = (filename, content, overwrite) => {
+
+            const afterSaveOk = (filename) => {
+                notificator.info(translator.forCode("saved-as") + ' ' + filename);
+                modeSaveSet(false);
+            };
+
+            // TODO make nice wrapper with resolve and reject
+            const fullFilename = filename + ".json";
+
+            const formData = new FormData();
+            formData.append("type", "json");
+            formData.append("file[]", new Blob([content]), fullFilename);
+            formData.append("overwrite", overwrite ? "true" : "false");
+
+            return Promise.resolve($.ajax({
+                type: 'POST',
+                url: './api/upload.php',
+                data: formData,
+                processData: false,
+                enctype: 'multipart/form-data',
+                contentType: false,
+                success: (result) => {
+                    if (result.trim() !== "file exists") {
+                        return afterSaveOk(fullFilename);
+                    }
+                    if ( ! confirm(translator.forCode("save-error-already-exists"))) {
+                        return;
+                    }
+                    doSave(filename, content, true);
+                },
+            }));
+        };
+
         const content = JSON.stringify(data.data, null, 4);
         var filename = $('[name="presentation-save-name"]').val().trim();
 
@@ -157,24 +192,10 @@
             notificator.error(translator.forCode("specify-save-as-name"));
             return;
         }
-        filename = filename + ".json";
 
-        const formData = new FormData();
-        formData.append("type", "json");
-        formData.append("file[]", new Blob([content]), filename);
+        doSave(filename, content, false);
 
-        return Promise.resolve($.ajax({
-            type: 'POST',
-            url: './api/upload.php',
-            data: formData,
-            processData: false,
-            enctype: 'multipart/form-data',
-            contentType: false,
-            success: () => {
-                notificator.info(translator.forCode("saved-as") + ' ' + filename);
-                modeSaveSet(false);
-            },
-        }));
+        /////
     };
 
     const dataLoad = async () => {
