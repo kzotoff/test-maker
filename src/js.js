@@ -582,6 +582,7 @@
     //////////////////////////////////////////////////////////////////////////////////////////
 
     // here we will store highlighted elements
+    // TODO below all actions refers to classes but not this value - should rewrite
     var audioPlayedElementSource = null;
     var audioPlayedElementTarget = null;
 
